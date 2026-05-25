@@ -143,7 +143,7 @@ Visualizing the model's output is critical for evaluating its practical applicat
 
 *(Note: Replace the image links below with your actual generated plots from the `evaluate.py` script).*
 
-![Equity Curve](docs/images/equity_curve.png)
+![Equity Curve]( docs/images/equity_curve.png)
 *> Figure 1: Simulated equity curve over the out-of-sample backtest period, showing cumulative returns.*
 
 ![Feature Importance](docs/images/feature_importance.png)
