@@ -108,7 +108,7 @@ Want to test or improve the model on your local machine? Follow these steps:
 
 ## Disclaimer
 
-**This project is strictly for educational, portfolio, and research purposes.** The machine learning models, backtest results, and any generated trading signals do not constitute financial advice. Trading financial markets—especially leveraged instruments like XAUUSD—carries a high level of risk and may not be suitable for all investors. Past performance is not indicative of future results.
+**This project is strictly for educational, portfolio, and research purposes.** The machine learning models, backtest results, and any generated trading signals do not constitute financial advice. Trading financial markets especially leveraged instruments like XAUUSD carries a high level of risk and may not be suitable for all investors. Past performance is not indicative of future results.
 
 ## Contact
 
