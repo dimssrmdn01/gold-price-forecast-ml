@@ -1,0 +1,11 @@
+data:
+  ticker: "GC=F"
+  start_date: "2020-01-01"
+  end_date: "2026-05-25"
+  raw_output_path: "data/raw/xauusd_raw.csv"
+
+model:
+  test_size: 0.2
+  random_state: 42
+  n_estimators: 100
+  learning_rate: 0.05
