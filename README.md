@@ -12,7 +12,7 @@ This repository demonstrates data engineering, time-series feature extraction, o
 ---
 
 ## 🚀 Live Demo
-Access the live web application here: 
+Access the live web application here: https://dimas-xauusd-engine.streamlit.app/
 
 ---
 
