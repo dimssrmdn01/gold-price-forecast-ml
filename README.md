@@ -10,8 +10,10 @@ An end-to-end Machine Learning pipeline designed to forecast the daily direction
 This repository demonstrates data engineering, time-series feature extraction, out-of-sample model evaluation, and simulated algorithmic trading performance.
 
 ---
+
 ## 🚀 Live Demo
 Access the live web application here: 
+
 ---
 
 ## Table of Contents
