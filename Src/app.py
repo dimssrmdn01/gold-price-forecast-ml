@@ -58,6 +58,8 @@ def fetch_institutional_data(symbol, days):
     end_date = datetime.today()
     start_date = end_date - timedelta(days=days + 100)
     df = yf.download(symbol, start=start_date, end=end_date)
+    if hasattr(data.columns, 'levels'):
+            data.columns = data.columns.get_level_values(0)
     return df
 
 try:
