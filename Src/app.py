@@ -197,3 +197,46 @@ try:
             
 except Exception as e:
     st.error(f"Critical System Failure: {str(e)}")
+
+st.divider()
+st.subheader("Real-Time Fundamental Sentiment (NLP Engine)")
+
+#Cek apakah otak NLP sudah terpasang
+if os.path.exists('Models/sentiment_model.pkl'):
+    try:
+        #Load Model NLP
+        nlp_model = joblib.load('Models/sentiment_model.pkl')
+        vectorizer = joblib.load('Models/tfidf_vectorizer.pkl')
+        
+        #Tarik berita real-time menggunakan yfinance
+        with st.spinner("Mengakses satelit Yahoo Finance & membedah sintaksis berita..."):
+            ticker_data = yf.Ticker(ticker_symbol)
+            news_data = ticker_data.news
+            
+            if news_data:
+                bullish_count, bearish_count, neutral_count = 0, 0, 0
+                
+                for news in news_data[:5]: 
+                    headline = news.get('title', '')
+                    if headline:
+                        #Vektorisasi dan Prediksi
+                        vec_text = vectorizer.transform([headline])
+                        sentiment = nlp_model.predict(vec_text)[0]
+                        
+                        #Hitung sentimen
+                        if sentiment == 'Bullish': bullish_count += 1
+                        elif sentiment == 'Bearish': bearish_count += 1
+                        else: neutral_count += 1
+                        
+                        #Tampilkan ke dashboard
+                        st.markdown(f"- **{headline}** ➔ [{sentiment}]")
+                
+                #Kalkulator Sentimen Mayoritas
+                st.write("---")
+                st.write(f"**Market Bias:** {bullish_count} Bullish | {bearish_count} Bearish | {neutral_count} Neutral")
+            else:
+                st.warning("Tidak ada berita fundamental terbaru untuk instrumen ini.")
+    except Exception as e:
+        st.error(f"Gagal memuat mesin NLP: {e}")
+else:
+    st.info(" Letakkan folder 'Models' dari proyek NLP ke sini untuk mengaktifkan AI Pembaca Berita.")
