@@ -60,8 +60,11 @@ def fetch_institutional_data(symbol, days):
     end_date = datetime.today()
     start_date = end_date - timedelta(days=days + 100)
     df = yf.download(symbol, start=start_date, end=end_date)
-    if hasattr(df.columns, 'levels'):
-            df.columns = df.columns.get_level_values(0)
+    
+    #Bersihkan MultiIndex jika kolom bertingkat
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.droplevel(1)
+        
     return df
 
 try:
@@ -201,14 +204,14 @@ except Exception as e:
 st.divider()
 st.subheader("Real-Time Fundamental Sentiment (NLP Engine)")
 
-#Cek apakah otak NLP sudah terpasang
+#Cek otak NLP sudah terpasang
 if os.path.exists('Models/sentiment_model.pkl'):
     try:
         #Load Model NLP
         nlp_model = joblib.load('Models/sentiment_model.pkl')
         vectorizer = joblib.load('Models/tfidf_vectorizer.pkl')
         
-        #Tarik berita real-time menggunakan yfinance
+        #Tarik berita real time menggunakan yfinance
         with st.spinner("Mengakses satelit Yahoo Finance & membedah sintaksis berita..."):
             ticker_data = yf.Ticker(ticker_symbol)
             news_data = ticker_data.news
