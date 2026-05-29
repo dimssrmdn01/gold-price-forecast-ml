@@ -204,46 +204,43 @@ except Exception as e:
     st.error(f"Critical System Failure: {str(e)}")
 
 st.divider()
-st.subheader("📰 Real-Time Fundamental Sentiment (NLP Engine)")
+st.subheader(" Real-Time Fundamental Sentiment (NLP Engine)")
 
 if os.path.exists('Models/sentiment_model.pkl'):
     try:
         nlp_model = joblib.load('Models/sentiment_model.pkl')
         vectorizer = joblib.load('Models/tfidf_vectorizer.pkl')
         
-        with st.spinner("Memindai radar fundamental global..."):
-            # Coba ambil data berita (kombinasi API yfinance & fallback)
-            ticker_data = yf.Ticker(ticker)
-            news_data = ticker_data.news
+        with st.spinner("Memaksa masuk ke mode diagnosa..."):
             
-            # Jika yfinance kosong, kita pakai dummy headline khusus XAUUSD untuk demonstrasi NLP
-            if not news_data and ticker == 'GC=F':
-                news_data = [
-                    {'title': 'Federal Reserve announces surprise interest rate hike, crashing tech stocks and gold'},
-                    {'title': 'Gold prices hit new all-time high amid surging safe-haven demand'},
-                    {'title': 'Central bank releases its monthly statistical report on inflation data'}
-                ]
+            dummy_news = [
+                "Federal Reserve announces surprise interest rate hike, crashing tech stocks and gold",
+                "Gold prices hit new all-time high amid surging safe-haven demand",
+                "Central bank releases its monthly statistical report on inflation data"
+            ]
             
-            if news_data:
-                bullish_count, bearish_count, neutral_count = 0, 0, 0
+            bullish_count, bearish_count, neutral_count = 0, 0, 0
+            
+            for headline in dummy_news:
+                vec_text = vectorizer.transform([headline])
+                raw_sentiment = nlp_model.predict(vec_text)[0]
                 
-                for news in news_data[:5]:
-                    headline = news.get('title', '')
-                    if headline:
-                        vec_text = vectorizer.transform([headline])
-                        sentiment = nlp_model.predict(vec_text)[0]
-                        
-                        if sentiment == 'Bullish': bullish_count += 1
-                        elif sentiment == 'Bearish': bearish_count += 1
-                        else: neutral_count += 1
-                        
-                        st.markdown(f"- **{headline}** ➔ [{sentiment}]")
+                # Tampilkan output asli dari model (Sangat penting untuk melihat label aslinya!)
+                st.markdown(f"- **{headline}** ➔ [Prediksi Mesin: `{raw_sentiment}`]")
                 
-                st.write("---")
-                st.write(f"**Market Bias:** 📈 {bullish_count} Bullish | 🩸 {bearish_count} Bearish | ⚖️ {neutral_count} Neutral")
-            else:
-                st.warning(f"Satelit berita tidak mendeteksi rilis fundamental besar untuk {ticker} saat ini.")
+                # Normalisasi perhitungan (menangkap berbagai kemungkinan label)
+                sent_str = str(raw_sentiment).lower().strip()
+                if sent_str in ['bullish', 'positive', '1', '1.0']:
+                    bullish_count += 1
+                elif sent_str in ['bearish', 'negative', '0', '0.0', '-1', '-1.0']:
+                    bearish_count += 1
+                else:
+                    neutral_count += 1
+            
+            st.write("---")
+            st.write(f"**Market Bias:** 📈 {bullish_count} Bullish | 🩸 {bearish_count} Bearish | ⚖️ {neutral_count} Neutral")
+            
     except Exception as e:
         st.error(f"Sistem NLP offline: {e}")
 else:
-    st.info("💡 Mesin NLP belum terpasang.")
+    st.info(" Mesin NLP belum terpasang.")
