@@ -212,18 +212,18 @@ if os.path.exists('Models/sentiment_model.pkl'):
         vectorizer = joblib.load('Models/tfidf_vectorizer.pkl')
         
         with st.spinner("Memindai radar fundamental global..."):
-            # 1. Coba ambil data asli dari API
+            #1. 
             ticker_data = yf.Ticker(ticker)
             raw_news = ticker_data.news
             
-            # 2. Saring hanya judul beritanya
+            #2. 
             news_list = []
             if raw_news:
                 for n in raw_news[:5]:
                     if n.get('title'):
                         news_list.append(n.get('title'))
             
-            # 3. FAIL-SAFE: Jika API mogok, aktifkan simulasi portofolio
+            #3. 
             if not news_list:
                 news_list = [
                     f"Federal Reserve announces surprise interest rate hike, crashing {ticker} volume",
@@ -231,21 +231,21 @@ if os.path.exists('Models/sentiment_model.pkl'):
                     "Central bank releases its monthly statistical report on inflation data"
                 ]
             
-            # 4. Prediksi & Kalkulasi
+            #4. 
             bullish_count, bearish_count, neutral_count = 0, 0, 0
             
             for headline in news_list:
                 vec_text = vectorizer.transform([headline])
                 sentiment = nlp_model.predict(vec_text)[0]
                 
-                # Normalisasi string untuk memastikan perhitungan aman
+                #Normalisasi string untuk memastikan perhitungan aman
                 sent_str = str(sentiment).title().strip() 
                 
                 if sent_str == 'Bullish': bullish_count += 1
                 elif sent_str == 'Bearish': bearish_count += 1
                 else: neutral_count += 1
                 
-                # Cetak ke layar
+                #Cetak ke layar
                 if sent_str == 'Bullish':
                     st.markdown(f"- **{headline}** ➔ [📈 {sent_str}]")
                 elif sent_str == 'Bearish':
@@ -256,7 +256,7 @@ if os.path.exists('Models/sentiment_model.pkl'):
             st.write("---")
             st.write(f"**Market Bias:** 📈 {bullish_count} Bullish | 🩸 {bearish_count} Bearish | ⚖️ {neutral_count} Neutral")
             
-            # Beri tahu audiens jika sedang memakai data simulasi
+        
             if not raw_news:
                 st.caption("*(Mode Portofolio Aktif: Menampilkan simulasi sentimen institusional karena API sedang offline)*")
             
