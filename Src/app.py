@@ -9,6 +9,9 @@ import urllib.request
 import json
 import os
 from datetime import datetime, timedelta
+from sklearn.linear_model import Ridge
+from sklearn.metrics import mean_squared_error
+import plotly.graph_objects as go
 
 #Pengaturan layout terminal 
 st.set_page_config(
@@ -264,3 +267,66 @@ if os.path.exists('Models/sentiment_model.pkl'):
         st.error(f"Sistem NLP offline: {e}")
 else:
     st.info(" Mesin NLP belum terpasang.")
+
+    st.divider()
+st.subheader("🤖 XAUUSD Predictive ML (Ridge Regression)")
+
+with st.spinner("Mengekstrak data historis dan melatih model statistik..."):
+    try:
+       # 1. Tarik 2 tahun data historis 
+        gold_data = yf.Ticker('GC=F') 
+        hist = gold_data.history(period="2y")
+        
+        #Jaring pengaman: Kalau data dari Yahoo kosong, hentikan proses!
+        if hist.empty:
+            st.error("Gagal menarik data dari Yahoo Finance. Coba refresh atau cek koneksi internetmu.")
+            st.stop()
+        
+        # 2. Feature Engineering (Menciptakan variabel prediktor)
+        df = pd.DataFrame()
+        df['Close'] = hist['Close']
+        df['Lag_1'] = df['Close'].shift(1) # Harga kemarin
+        df['Lag_2'] = df['Close'].shift(2) # Harga 2 hari lalu
+        df['SMA_10'] = df['Close'].rolling(window=10).mean() # Rata-rata 10 hari
+        df['SMA_30'] = df['Close'].rolling(window=30).mean() # Rata-rata 30 hari
+        
+        # Buang baris yang kosong akibat perhitungan Lag dan SMA
+        df.dropna(inplace=True)
+        
+        # 3. Pisahkan Variabel Independen (X) dan Dependen (y)
+        X = df[['Lag_1', 'Lag_2', 'SMA_10', 'SMA_30']]
+        y = df['Close']
+        
+        # Split Data: 80% Belajar, 20% Ujian (Tanpa diacak karena ini time-series)
+        split_idx = int(len(df) * 0.8)
+        X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
+        y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+        
+        # 4. Melatih Model Ridge Regression
+        model = Ridge(alpha=1.0)
+        model.fit(X_train, y_train)
+        
+        # 5. Evaluasi Ujian (RMSE)
+        predictions = model.predict(X_test)
+        rmse = np.sqrt(mean_squared_error(y_test, predictions))
+        
+        # 6. MENGHITUNG PREDIKSI HARGA ESOK HARI
+        last_row = X.iloc[-1].values.reshape(1, -1)
+        next_day_pred = model.predict(last_row)[0]
+        
+        # TAMPILAN UI
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="Prediksi Harga Penutupan (Esok)", value=f"${next_day_pred:,.2f}")
+        with col2:
+            st.metric(label="Tingkat Akurasi (Error Rate / RMSE)", value=f"${rmse:,.2f}", delta="Lebih kecil lebih baik", delta_color="inverse")
+        
+        # 7. Visualisasi Hasil Ujian Model vs Harga Asli
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=y_test.index, y=y_test.values, mode='lines', name='Harga Aktual (Real)', line=dict(color='blue')))
+        fig.add_trace(go.Scatter(x=y_test.index, y=predictions, mode='lines', name='Tebakan Mesin (Prediksi)', line=dict(color='orange', dash='dot')))
+        fig.update_layout(title='Backtesting Model pada 20% Data Terakhir', xaxis_title='Tanggal', yaxis_title='Harga (USD)', height=400)
+        st.plotly_chart(fig, use_container_width=True)
+
+    except Exception as e:
+        st.error(f"Mesin ML gagal dieksekusi: {e}")

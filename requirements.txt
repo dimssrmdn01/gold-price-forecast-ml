@@ -6,3 +6,5 @@ matplotlib
 seaborn
 scikit-learn
 joblib
+tensorflow
+plotly
