@@ -1,4 +1,4 @@
-# 🪙 Gold Price (XAUUSD) Directional Forecasting using XGBoost (Pro Version)
+#  Gold Price (XAUUSD) Directional Forecasting using XGBoost (Pro Version)
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange)
@@ -14,7 +14,7 @@ Access the live web application here: https://dimas-xauusd-engine.streamlit.app/
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 gold-price-forecast-ml/
@@ -39,7 +39,7 @@ gold-price-forecast-ml/
 
 ---
 
-## ⚙️ Data & Feature Engineering
+##  Data & Feature Engineering
 
 Raw daily Close/Volume data alone is insufficient for gradient boosting frameworks. The processing pipeline expands the mathematical feature space into:
 * **Trend Indicators:** Simple Moving Averages (SMA 10, SMA 30) to establish baseline support.
@@ -48,7 +48,7 @@ Raw daily Close/Volume data alone is insufficient for gradient boosting framewor
 
 ---
 
-## 🔬 Models & Performance Tracking
+##  Models & Performance Tracking
 
 The core pipeline utilizes **XGBoost (Extreme Gradient Boosting)** to isolate non-linear relationships without assuming historical norm distributions. 
 
@@ -63,7 +63,7 @@ To guarantee production safety, every iteration run commits validation parameter
 
 ---
 
-## 💻 How to Run (Local Setup)
+##  How to Run (Local Setup)
 
 1. **Clone the repository:**
    ```bash
