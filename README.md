@@ -63,7 +63,7 @@ To guarantee production safety, every iteration run commits validation parameter
 
 ---
 
-##  How to Run (Local Setup)
+##  How to Run 
 
 1. **Clone the repository:**
    ```bash
