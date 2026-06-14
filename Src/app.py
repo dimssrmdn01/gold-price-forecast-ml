@@ -402,3 +402,59 @@ if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary
                 
         except Exception as e:
             st.error(f"Mesin PyTorch gagal dieksekusi: {e}")
+
+# -------------------------------------------------------------------
+# ADVANCED BACKTESTING ENGINE (5-YEAR SIMULATION)
+# -------------------------------------------------------------------
+st.divider()
+st.subheader("❖ Historical Strategy Backtesting (5-Year Simulation)")
+st.markdown("Simulasi eksekusi strategi *Moving Average Crossover* terhadap data historis 5 tahun terakhir untuk memvalidasi probabilitas profitabilitas.")
+
+with st.spinner("Menjalankan komputasi simulasi portofolio historis..."):
+    try:
+        import vectorbt as vbt
+        
+        # 1. Menarik data 5 tahun terakhir khusus untuk backtest
+        bt_data = yf.download(ticker, period="5y", progress=False)
+        if isinstance(bt_data.columns, pd.MultiIndex):
+            bt_data.columns = bt_data.columns.droplevel(1)
+        
+        price_series = bt_data['Close']
+            
+        # 2. Membangun sinyal indikator secara terkomputasi vektor
+        fast_ma = vbt.MA.run(price_series, short_window)
+        slow_ma = vbt.MA.run(price_series, long_window)
+        
+        entries = fast_ma.ma_crossed_above(slow_ma)
+        exits = fast_ma.ma_crossed_below(slow_ma)
+        
+        # 3. Eksekusi simulasi portofolio (termasuk potongan biaya broker/fee 0.1%)
+        portfolio = vbt.Portfolio.from_signals(
+            price_series, 
+            entries, 
+            exits, 
+            init_cash=account_capital, 
+            fees=0.001
+        )
+        
+        # 4. Ekstraksi Metrik Kinerja Kunci (Key Performance Indicators)
+        col_bt1, col_bt2, col_bt3, col_bt4 = st.columns(4)
+        with col_bt1:
+            st.metric("Total Return Kuantitatif", f"{portfolio.total_return() * 100:.2f}%")
+        with col_bt2:
+            st.metric("Net Profit (PnL)", f"${portfolio.total_profit():,.2f}")
+        with col_bt3:
+            st.metric("Win Rate (Akurasi Sinyal)", f"{portfolio.trades.win_rate() * 100:.2f}%")
+        with col_bt4:
+            st.metric("Maximum Drawdown", f"{portfolio.max_drawdown() * 100:.2f}%")
+            
+        # 5. Visualisasi Portofolio Interaktif
+        st.markdown("**Kurva Ekuitas (Equity Curve) & Riwayat Transaksi**")
+        fig_bt = portfolio.plot()
+        fig_bt.update_layout(height=600, template="plotly_dark", margin=dict(l=20, r=20, t=20, b=20))
+        st.plotly_chart(fig_bt, use_container_width=True)
+        
+    except ImportError:
+        st.error("Pustaka 'vectorbt' belum terpasang. Jalankan 'pip install vectorbt' di environment Anda.")
+    except Exception as e:
+        st.error(f"Komputasi backtest gagal dieksekusi: {e}")
