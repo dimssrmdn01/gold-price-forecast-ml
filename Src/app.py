@@ -18,7 +18,29 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # -------------------------------------------------------------------
-# KELAS ARSITEKTUR DEEP LEARNING (LSTM)
+# CONFIGURATION & INITIALIZATION
+# -------------------------------------------------------------------
+st.set_page_config(
+    page_title="Institutional Quant Engine", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS untuk nuansa Bloomberg Terminal
+st.markdown("""
+    <style>
+    .reportview-container { background: #0e1117; }
+    .metric-card {
+        background-color: #161b22;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #30363d;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# -------------------------------------------------------------------
+# DEEP LEARNING ARCHITECTURE (LSTM)
 # -------------------------------------------------------------------
 class XAUUSDForecasterLSTM(nn.Module):
     def __init__(self, input_dim=1, hidden_dim=64, num_layers=2, output_dim=1):
@@ -35,27 +57,11 @@ class XAUUSDForecasterLSTM(nn.Module):
         out = self.fc(out[:, -1, :]) 
         return out
 
-# Pengaturan layout terminal 
-st.set_page_config(
-    page_title="Institutional Gold Quant Engine", 
-    layout="wide", 
-    initial_sidebar_state="expanded"
-)
-
-# Custom CSS untuk nuansa Bloomberg 
-st.markdown("""
-    <style>
-    .reportview-container { background: #0e1117; }
-    ...
-    </style>
-""", unsafe_allow_html=True)
-
 # -------------------------------------------------------------------
-# 1. SIDEBAR CONTROL PANEL (
+# CONTROL PANEL (Sidebar pertama untuk mencegah NameError)
 # -------------------------------------------------------------------
 st.sidebar.header("Quant Engine Control Panel")
-# Nah, di sini variabel 'ticker' resmi didefinisikan!
-ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F") 
+ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F")
 backtest_days = st.sidebar.slider("Historical Data Window (Days)", min_value=60, max_value=365, value=180)
 
 st.sidebar.markdown("---")
@@ -69,23 +75,24 @@ account_capital = st.sidebar.number_input("Total Account Capital ($)", min_value
 risk_percentage = st.sidebar.slider("Risk Per Trade (%)", min_value=0.5, max_value=5.0, value=1.0, step=0.5)
 
 # -------------------------------------------------------------------
-# 2. HEADER SECTION 
+# HEADER SECTION (Menggunakan variabel ticker secara dinamis)
 # -------------------------------------------------------------------
-# Karena 'ticker' sudah dibuat di atas, baris ini sekarang akan berjalan mulus!
 st.title(f"{ticker} Institutional Quantitative & Predictive Analytics Engine")
 st.markdown("### `SYSTEM STATUS: OPERATIONAL` | Risk Mitigation & Quantitative Execution Framework")
 st.markdown("---")
 
 # -------------------------------------------------------------------
-# DATA INGESTION PIPELINE 
+# DATA INGESTION PIPELINE
 # -------------------------------------------------------------------
 @st.cache_data(ttl=1800)
 def fetch_institutional_data(symbol, days):
     end_date = datetime.today()
     start_date = end_date - timedelta(days=days + 100)
     df = yf.download(symbol, start=start_date, end=end_date, progress=False)
+    
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel(1)
+        
     return df
 
 try:
@@ -96,13 +103,10 @@ try:
     else:
         df = df_raw.copy()
         
-        # -------------------------------------------------------------------
-        # ADVANCED FEATURE ENGINEERING
-        # -------------------------------------------------------------------
+        # Advanced Feature Engineering
         df['MA_Fast'] = df['Close'].rolling(window=short_window).mean()
         df['MA_Slow'] = df['Close'].rolling(window=long_window).mean()
         
-        # Average True Range (ATR)
         df['H-L'] = df['High'] - df['Low']
         df['H-PC'] = abs(df['High'] - df['Close'].shift(1))
         df['L-PC'] = abs(df['Low'] - df['Close'].shift(1))
@@ -112,9 +116,7 @@ try:
         df['Log_Return'] = np.log(df['Close'] / df['Close'].shift(1))
         df_filtered = df.tail(backtest_days).copy()
         
-        # -------------------------------------------------------------------
-        # ALGORITHMIC BACKTEST EXECUTION ENGINE & RISK METRICS
-        # -------------------------------------------------------------------
+        # Algorithmic Crossover Calculations
         df_filtered['Signal'] = np.where(df_filtered['MA_Fast'] > df_filtered['MA_Slow'], 1, -1)
         df_filtered['Strategy_Return'] = df_filtered['Log_Return'] * df_filtered['Signal'].shift(1)
         
@@ -137,9 +139,7 @@ try:
         stop_loss_distance = current_atr * 2 
         simulated_position_size = cash_risk / stop_loss_distance if stop_loss_distance > 0 else 0.0
 
-        # -------------------------------------------------------------------
-        # INTERACTIVE TERMINAL DASHBOARD LAYOUT
-        # -------------------------------------------------------------------
+        # UI Metric Display
         m1, m2, m3, m4 = st.columns(4)
         with m1:
             st.markdown("<div class='metric-card'>", unsafe_allow_html=True)
@@ -168,11 +168,14 @@ try:
             fig, ax1 = plt.subplots(figsize=(16, 7))
             fig.patch.set_facecolor('#0e1117')
             ax1.set_facecolor('#161b22')
-            ax1.plot(df_filtered.index, df_filtered['Close'], label='XAUUSD Spot Price', color='#D4AF37', linewidth=2, alpha=0.9)
+            
+            ax1.plot(df_filtered.index, df_filtered['Close'], label='Spot Price', color='#D4AF37', linewidth=2, alpha=0.9)
             ax1.plot(df_filtered.index, df_filtered['MA_Fast'], label=f'Fast MA ({short_window}D)', color='#00D2FF', linestyle='--', linewidth=1.2)
             ax1.plot(df_filtered.index, df_filtered['MA_Slow'], label=f'Slow MA ({long_window}D)', color='#FF3B30', linestyle='--', linewidth=1.2)
+            
             ax1.scatter(df_filtered.index, df_filtered['Buy_Markers'], label='EXECUTE LONG (BUY)', color='#34C759', marker='^', s=150, zorder=5)
             ax1.scatter(df_filtered.index, df_filtered['Sell_Markers'], label='EXECUTE SHORT (SELL)', color='#FF3B30', marker='v', s=150, zorder=5)
+            
             ax1.set_ylabel("Price (USD)", color='white', fontsize=12)
             ax1.tick_params(colors='white')
             ax1.legend(loc='upper left', facecolor='#0e1117', edgecolor='#30363d', labelcolor='white')
@@ -197,22 +200,121 @@ except Exception as e:
     st.error(f"Critical System Failure: {str(e)}")
 
 # -------------------------------------------------------------------
+# GLOBAL MACRO RADAR & CORRELATION
+# -------------------------------------------------------------------
+st.divider()
+st.subheader("❖ Global Macro Radar & Asset Correlation")
+
+with st.spinner("Sinkronisasi dengan indeks pasar global..."):
+    try:
+        macro_basket = {
+            "Primary": ticker,
+            "S&P 500": "^GSPC",
+            "NASDAQ": "^IXIC",
+            "US Dollar (DXY)": "DX-Y.NYB"
+        }
+        
+        macro_data = pd.DataFrame()
+        for name, sym in macro_basket.items():
+            temp_df = yf.download(sym, period=f"{backtest_days}d", progress=False)
+            if not temp_df.empty and 'Close' in temp_df.columns:
+                macro_data[name] = temp_df['Close'].squeeze()
+            
+        macro_data.dropna(inplace=True)
+        corr_matrix = macro_data.corr()
+        
+        col_macro1, col_macro2 = st.columns([1, 2])
+        
+        with col_macro1:
+            st.markdown("**Matriks Korelasi Kuantitatif**")
+            fig_corr = go.Figure(data=go.Heatmap(
+                z=corr_matrix.values,
+                x=corr_matrix.columns,
+                y=corr_matrix.columns,
+                colorscale='RdBu',
+                zmin=-1, zmax=1,
+                text=np.round(corr_matrix.values, 2),
+                texttemplate="%{text}",
+                showscale=False
+            ))
+            fig_corr.update_layout(height=350, margin=dict(l=20, r=20, t=20, b=20), template="plotly_dark")
+            st.plotly_chart(fig_corr, use_container_width=True)
+            
+        with col_macro2:
+            st.markdown("**Perbandingan Kinerja Dinormalisasi (Base 100)**")
+            normalized_data = (macro_data / macro_data.iloc[0]) * 100
+            fig_line = go.Figure()
+            
+            for col in normalized_data.columns:
+                width = 3 if col == "Primary" else 1.5
+                dash = 'solid' if col == "Primary" else 'dot'
+                fig_line.add_trace(go.Scatter(x=normalized_data.index, y=normalized_data[col], mode='lines', name=col, line=dict(width=width, dash=dash)))
+                
+            fig_line.update_layout(height=350, margin=dict(l=20, r=20, t=20, b=20), template="plotly_dark", hovermode="x unified")
+            st.plotly_chart(fig_line, use_container_width=True)
+            
+    except Exception as e:
+        st.error(f"Gagal memuat radar makro: {str(e)}")
+
+# -------------------------------------------------------------------
 # NLP SENTIMENT ENGINE
 # -------------------------------------------------------------------
 st.divider()
 st.subheader("❖ Real-Time Fundamental Sentiment (NLP Engine)")
 if os.path.exists('Models/sentiment_model.pkl'):
-    # ... (Bagian NLP dibiarkan sama karena sudah optimal)
-    st.info("Mesin NLP terdeteksi aktif. (Output disembunyikan untuk fokus pada algoritma DL)")
+    try:
+        nlp_model = joblib.load('Models/sentiment_model.pkl')
+        vectorizer = joblib.load('Models/tfidf_vectorizer.pkl')
+        
+        with st.spinner("Memindai radar fundamental global..."):
+            ticker_data = yf.Ticker(ticker)
+            raw_news = ticker_data.news
+            
+            news_list = []
+            if raw_news:
+                for n in raw_news[:5]:
+                    if n.get('title'):
+                        news_list.append(n.get('title'))
+            
+            if not news_list:
+                news_list = [
+                    f"Surprise volatility adjustments shifting short term asset volume",
+                    f"Market parameters hit new baseline amidst scaling global demand",
+                    "Central institution releases monthly economic update on inflation parameters"
+                ]
+            
+            bullish_count, bearish_count, neutral_count = 0, 0, 0
+            
+            for headline in news_list:
+                vec_text = vectorizer.transform([headline])
+                sentiment = nlp_model.predict(vec_text)[0]
+                sent_str = str(sentiment).title().strip() 
+                
+                if sent_str == 'Bullish': 
+                    bullish_count += 1
+                    st.markdown(f"- **{headline}** ➔ [▲ {sent_str}]")
+                elif sent_str == 'Bearish': 
+                    bearish_count += 1
+                    st.markdown(f"- **{headline}** ➔ [▼ {sent_str}]")
+                else: 
+                    neutral_count += 1
+                    st.markdown(f"- **{headline}** ➔ [■ {sent_str}]")
+                
+            st.write("---")
+            st.write(f"**Market Bias:** ▲ {bullish_count} Bullish | ▼ {bearish_count} Bearish | ■ {neutral_count} Neutral")
+            
+    except Exception as e:
+        st.error(f"Sistem NLP offline: {e}")
 else:
-    st.info("Mesin NLP belum terpasang.")
+    st.info("Mesin NLP tidak aktif atau belum terpasang.")
 
 # -------------------------------------------------------------------
 # MACHINE LEARNING ENGINE (LASSO)
 # -------------------------------------------------------------------
 st.divider()
 st.subheader(f"⟁ {ticker} Predictive ML (Lasso Regression)")
-with st.spinner("Mengekstrak data historis dan melatih model statistik..."):
+
+with st.spinner("Mengekstrak data historis dan mengonfigurasi model statistik..."):
     try:
         hist = yf.Ticker(ticker).history(period="2y")
         if not hist.empty:
@@ -231,7 +333,6 @@ with st.spinner("Mengekstrak data historis dan melatih model statistik..."):
             X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
             y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
             
-            # Implementasi Lasso Regression
             model_ml = Lasso(alpha=0.1)
             model_ml.fit(X_train, y_train)
             
@@ -241,11 +342,11 @@ with st.spinner("Mengekstrak data historis dan melatih model statistik..."):
             last_row = X.iloc[-1].values.reshape(1, -1)
             next_day_pred = model_ml.predict(last_row)[0]
             
-            col1, col2 = st.columns(2)
-            with col1:
+            col_ml1, col_ml2 = st.columns(2)
+            with col_ml1:
                 st.metric(label="Prediksi Lasso (Esok)", value=f"${next_day_pred:,.2f}")
-            with col2:
-                st.metric(label="Akurasi MSE Loss (RMSE)", value=f"${rmse:,.2f}", delta="Optimal Feature Selection", delta_color="normal")
+            with col_ml2:
+                st.metric(label="Akurasi Model (RMSE)", value=f"${rmse:,.2f}", delta="Optimal Feature Selection", delta_color="normal")
     except Exception as e:
         st.error(f"Mesin ML gagal dieksekusi: {e}")
 
@@ -254,10 +355,10 @@ with st.spinner("Mengekstrak data historis dan melatih model statistik..."):
 # -------------------------------------------------------------------
 st.divider()
 st.subheader(f"⚡ {ticker} Deep Learning Forecaster (PyTorch LSTM)")
-st.markdown("Model *time-series forecasting* berbasis Deep Learning untuk memprediksi arah tren harga.")
+st.markdown("Model *time-series forecasting* berbasis Deep Learning untuk memprediksi arah tren harga berdasarkan sekuensial data.")
 
 if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary"):
-    with st.spinner("Memproses Tensor dan melatih arsitektur LSTM selama 50 epoch..."):
+    with st.spinner("Memproses matriks tensor dan melakukan iterasi pelatihan..."):
         try:
             seq_length = 10
             raw_dl = yf.download(ticker, period="2y", progress=False)
@@ -267,8 +368,8 @@ if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary
             
             X_dl, y_dl = [], []
             for i in range(len(scaled_data) - seq_length):
-                X_dl.append(scaled_data[i:(i + seq_length), 0])
-                y_dl.append(scaled_data[i + seq_length, 0])
+                X_dl.append(scaled_data[i:(i + sequence_length), 0])
+                y_dl.append(scaled_data[i + sequence_length, 0])
                 
             X_tensor = torch.FloatTensor(np.array(X_dl).reshape(-1, seq_length, 1))
             y_tensor = torch.FloatTensor(np.array(y_dl).reshape(-1, 1))
@@ -277,7 +378,6 @@ if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary
             criterion = nn.MSELoss()
             optimizer = torch.optim.Adam(model_dl.parameters(), lr=0.01)
             
-            # Progress bar untuk UI
             progress = st.progress(0)
             for epoch in range(50):
                 model_dl.train()
@@ -287,7 +387,6 @@ if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary
                 optimizer.step()
                 progress.progress((epoch + 1) / 50)
             
-            # Prediksi
             model_dl.eval()
             with torch.no_grad():
                 pred_scaled = model_dl(X_tensor[-1:].clone().detach())
@@ -299,7 +398,7 @@ if st.button("▰▰ INITIALIZE TENSOR COMPUTATION (LSTM) ▰▰", type="primary
             with dl1:
                 st.metric("Harga Aktual Terakhir", f"${lstm_actual:,.2f}")
             with dl2:
-                st.metric("Proyeksi Neural Network", f"${lstm_pred_usd:,.2f}", f"{lstm_pred_usd - lstm_actual:+.2f} USD")
+                st.metric("Proyeksi Jaringan Saraf", f"${lstm_pred_usd:,.2f}", f"{lstm_pred_usd - lstm_actual:+.2f} USD")
                 
         except Exception as e:
             st.error(f"Mesin PyTorch gagal dieksekusi: {e}")
