@@ -46,27 +46,16 @@ st.set_page_config(
 st.markdown("""
     <style>
     .reportview-container { background: #0e1117; }
-    .metric-card {
-        background-color: #161b22;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #30363d;
-    }
+    ...
     </style>
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# HEADER SECTION
-# -------------------------------------------------------------------
-st.title(f"{ticker} Institutional Quantitative & Predictive Analytics Engine")
-st.markdown("### `SYSTEM STATUS: OPERATIONAL` | Risk Mitigation & Quantitative Execution Framework")
-st.markdown("---")
-
-# -------------------------------------------------------------------
-# SIDEBAR CONTROL PANEL
+# 1. SIDEBAR CONTROL PANEL (
 # -------------------------------------------------------------------
 st.sidebar.header("Quant Engine Control Panel")
-ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F")
+# Nah, di sini variabel 'ticker' resmi didefinisikan!
+ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F") 
 backtest_days = st.sidebar.slider("Historical Data Window (Days)", min_value=60, max_value=365, value=180)
 
 st.sidebar.markdown("---")
@@ -80,7 +69,15 @@ account_capital = st.sidebar.number_input("Total Account Capital ($)", min_value
 risk_percentage = st.sidebar.slider("Risk Per Trade (%)", min_value=0.5, max_value=5.0, value=1.0, step=0.5)
 
 # -------------------------------------------------------------------
-# DATA INGESTION PIPELINE
+# 2. HEADER SECTION 
+# -------------------------------------------------------------------
+# Karena 'ticker' sudah dibuat di atas, baris ini sekarang akan berjalan mulus!
+st.title(f"{ticker} Institutional Quantitative & Predictive Analytics Engine")
+st.markdown("### `SYSTEM STATUS: OPERATIONAL` | Risk Mitigation & Quantitative Execution Framework")
+st.markdown("---")
+
+# -------------------------------------------------------------------
+# DATA INGESTION PIPELINE 
 # -------------------------------------------------------------------
 @st.cache_data(ttl=1800)
 def fetch_institutional_data(symbol, days):
