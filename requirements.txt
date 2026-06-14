@@ -4,7 +4,7 @@ numpy
 yfinance
 matplotlib
 seaborn
-scikit-learn
 joblib
-tensorflow
+scikit-learn
 plotly
+torch
