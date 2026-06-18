@@ -1,4 +1,4 @@
-# 🏛️ Institutional Asset Quantitative & Predictive Engine
+#  Institutional Asset Quantitative & Predictive Engine
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![PyTorch](https://img.shields.io/badge/Deep_Learning-PyTorch-EE4C2C)
@@ -9,12 +9,10 @@ An institutional-grade, real-time quantitative dashboard designed to analyze and
 
 ---
 
-## 🚀 Live Terminal
-*(https://dimas-xauusd-engine.streamlit.app/)*
 
 ---
 
-## 🧠 Core Engine Architectures
+##  Core Engine Architectures
 
 This terminal operates on four distinct analytical layers:
 
@@ -37,7 +35,7 @@ This terminal operates on four distinct analytical layers:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 * **Frontend:** Streamlit, Plotly, Seaborn (Bloomberg Terminal-inspired UI/UX)
 * **Data Ingestion:** `yfinance`, Pandas, NumPy
 * **Machine Learning:** Scikit-Learn, Joblib
@@ -45,7 +43,7 @@ This terminal operates on four distinct analytical layers:
 
 ---
 
-## 💻 How to Run Locally
+##  How to Run Locally
 
 1. **Clone the repository:**
    ```bash
