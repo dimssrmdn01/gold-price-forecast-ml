@@ -264,7 +264,7 @@ except Exception as e:
 # MACRO RADAR
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'>❖ Global Macro Radar</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Global Macro Radar</h2>", unsafe_allow_html=True)
 
 with st.spinner("Sinkronisasi data makro..."):
     try:
@@ -320,14 +320,14 @@ with st.spinner("Sinkronisasi data makro..."):
 # ML & DL ENGINES
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'>❖ Predictive Architectures</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Predictive Architectures</h2>", unsafe_allow_html=True)
 
 col_ai1, col_ai2 = st.columns(2, gap="large")
 
 with col_ai1:
     # Kontainer Lasso
     with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #00d2ff;'>⟁ Lasso Regression</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-family: Space Mono; color: #00d2ff;'> Lasso Regression</h3>", unsafe_allow_html=True)
         with st.spinner("Konfigurasi ML..."):
             try:
                 hist = yf.Ticker(ticker).history(period="2y")
@@ -365,7 +365,7 @@ with col_ai1:
 with col_ai2:
     # Kontainer PyTorch
     with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #b026ff;'>⚡ PyTorch LSTM Core</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-family: Space Mono; color: #b026ff;'> PyTorch LSTM Core</h3>", unsafe_allow_html=True)
         if st.button("INITIALIZE TENSOR COMPUTATION", use_container_width=True):
             with st.spinner("Iterasi pelatihan..."):
                 try:
@@ -418,7 +418,7 @@ with col_ai2:
 # BACKTESTING (VECTORBT)
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'>❖ 5-Year Strategy Backtest</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> 5-Year Strategy Backtest</h2>", unsafe_allow_html=True)
 
 with st.spinner("Komputasi historis..."):
     try:
