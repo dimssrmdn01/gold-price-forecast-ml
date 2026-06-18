@@ -121,7 +121,7 @@ class XAUUSDForecasterLSTM(nn.Module):
 # -------------------------------------------------------------------
 # SIDEBAR CONTROL
 # -------------------------------------------------------------------
-st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #D4AF37;'>⚙️ QUANT TERMINAL</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #D4AF37;'> QUANT TERMINAL</h2>", unsafe_allow_html=True)
 ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F")
 backtest_days = st.sidebar.slider("Historical Data (Days)", min_value=60, max_value=365, value=180)
 
@@ -139,7 +139,7 @@ risk_percentage = st.sidebar.slider("Risk Per Trade (%)", min_value=0.5, max_val
 # HEADER
 # -------------------------------------------------------------------
 st.markdown(f'<h1 class="terminal-header">{ticker} QUANTITATIVE ENGINE</h1>', unsafe_allow_html=True)
-st.markdown('<div class="terminal-sub">/// SYSTEM STATUS: OPERATIONAL | PREDICTIVE ANALYTICS & EXECUTION FRAMEWORK ///</div>', unsafe_allow_html=True)
+st.markdown('<div class="terminal-sub"> SYSTEM STATUS: OPERATIONAL | PREDICTIVE ANALYTICS & EXECUTION FRAMEWORK </div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
 # DATA INGESTION
@@ -215,7 +215,7 @@ try:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        tab1, tab2, tab3 = st.tabs(["📈 Execution Chart", "🛡️ Risk Sizing", "📋 Raw Matrix"])
+        tab1, tab2, tab3 = st.tabs([" Execution Chart", " Risk Sizing", " Raw Matrix"])
         
         with tab1:
             # Upgrade Plotly
@@ -247,10 +247,10 @@ try:
             # Info risiko
             c1, c2 = st.columns(2)
             with c1:
-                st.info(f"🛡️ **Allowed Cash Risk:** ${cash_risk:,.2f} per trade")
+                st.info(f" **Allowed Cash Risk:** ${cash_risk:,.2f} per trade")
                 st.markdown(f"**Target Stop Loss:** ${stop_loss_distance:.2f} (2x ATR)")
             with c2:
-                st.success(f"⚖️ **SIMULATED SIZE:** {simulated_position_size:.3f} units")
+                st.success(f" **SIMULATED SIZE:** {simulated_position_size:.3f} units")
                 st.markdown(f"**Capital Allocation:** ${simulated_position_size * latest_price:,.2f}")
 
         with tab3:
