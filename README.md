@@ -9,9 +9,6 @@ An institutional-grade, real-time quantitative dashboard designed to analyze and
 
 ---
 
-
----
-
 ## Core Engine Architectures
 
 This terminal operates on four distinct analytical layers:
