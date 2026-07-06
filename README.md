@@ -45,7 +45,7 @@ This terminal operates on four distinct analytical layers, ensuring a comprehens
 ---
 
 ##  Project Structure
-
+```
 gold-price-forecast-ml/
 ├── Src/
 │   ├── data_loader.py    # Ingests live XAUUSD/Crypto data via yfinance
@@ -55,8 +55,8 @@ gold-price-forecast-ml/
 ├── app.py                # Main Streamlit dashboard application
 ├── requirements.txt      # Project dependencies and libraries
 └── README.md             # Project documentation
-
-## 🛠️ Technology Stack
+```
+##  Technology Stack
 
 | Category | Technologies |
 | :--- | :--- |
