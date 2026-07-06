@@ -114,7 +114,7 @@ Follow these steps to deploy the terminal on your local machine:
 **1. Clone the repository:**
 
 ```bash
-git clone [https://github.com/dimssrmdn01/gold-price-forecast-ml.git](https://github.com/dimssrmdn01/gold-price-forecast-ml.git)
+git clone [https://github.com/dimssrmdn01/gold-price-forecast-ml.git]
 cd gold-price-forecast-ml
 ```
 
