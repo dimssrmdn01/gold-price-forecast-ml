@@ -1,4 +1,4 @@
-#  Institutional Asset Quantitative & Predictive Engine
+<img width="1907" height="1037" alt="Screenshot 2026-07-06 124529" src="https://github.com/user-attachments/assets/f594fdc6-ba35-43cc-a94e-ab5653b1db22" />#  Institutional Asset Quantitative & Predictive Engine
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
@@ -13,13 +13,60 @@
 
 ##  Dashboard Preview
 
+Here is a detailed look at the Institutional Quant Engine terminal interfaces:
+
+### 1. Main Terminal Overview & Risk Management
 <div align="center">
-  <img src="[https://via.placeholder.com/800x400.png?text=Insert+Streamlit+Dashboard+Screenshot+Here](https://via.placeholder.com/800x400.png?text=Insert+Streamlit+Dashboard+Screenshot+Here)" alt="Dashboard Preview" width="800">
+  <!-- Ganti URL di bawah dengan file gambar Anda, misal: dashboard_1.png -->
+  <img src="<img width="1907" height="1037" alt="Screenshot 2026-07-06 124529" src="https://github.com/user-attachments/assets/6b12f42e-eb23-4df4-b951-7cc7710c5067" />
+">
   <br>
-  <em>Figure 1: Real-time volatility tracking and LSTM-based price forecasting interface.</em>
+  <em>Figure 1: Main quantitative engine terminal displaying real-time asset prices, market volatility (ATR), and key risk/return metrics.</em>
 </div>
 
 ---
+
+### 2. Quantitative Execution History Chart
+<div align="center">
+  <!-- Ganti URL di bawah dengan file gambar Anda, misal: chart_execution.png -->
+  <img src="<img width="1917" height="808" alt="Screenshot 2026-07-06 124554" src="https://github.com/user-attachments/assets/f650cae2-a530-4c54-963b-7406657aae85" />
+">
+  <br>
+  <em>Figure 2: Detailed historical price action chart with moving average crossovers and dynamic Long/Short execution markers.</em>
+</div>
+
+---
+
+### 3. Global Macro Radar & Correlation Matrix
+<div align="center">
+  <!-- Ganti URL di bawah dengan file gambar Anda, misal: macro_radar.png -->
+  <img src="<img width="1890" height="722" alt="Screenshot 2026-07-06 124611" src="https://github.com/user-attachments/assets/6685dc36-a4b7-4999-9ab9-58a8d4d0bd5b" />
+">
+  <br>
+  <em>Figure 3: Global Macro Radar section showing asset correlation heatmaps and comparative performance analysis against major indices.</em>
+</div>
+
+---
+
+### 4. Predictive Architectures (Lasso & LSTM)
+<div align="center">
+  <!-- Ganti URL di bawah dengan file gambar Anda, misal: predictive_models.png -->
+  <img src="<img width="1882" height="613" alt="Screenshot 2026-07-06 124632" src="https://github.com/user-attachments/assets/0cc9aa97-0e5b-48ac-82f5-2c43deddd972" />
+">
+  <br>
+  <em>Figure 4: Interface for machine learning models, displaying Lasso Regression feature selection and PyTorch LSTM deep learning price projections.</em>
+</div>
+
+---
+
+### 5. Strategy Backtesting Results
+<div align="center">
+  <!-- Ganti URL di bawah dengan file gambar Anda, misal: backtest_results.png -->
+  <img src="<img width="1902" height="893" alt="Screenshot 2026-07-06 124644" src="https://github.com/user-attachments/assets/5bc999ec-4b3f-44bd-bd02-cd542b5e09fa" />
+">
+  <br>
+  <em>Figure 5: 5-Year strategy backtest terminal showing equity curves, drawdown analysis, and trade-by-trade performance metrics.</em>
+</div>
 
 ##  Core Engine Architectures
 
