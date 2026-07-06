@@ -57,6 +57,9 @@ Here is a detailed look at the Institutional Quant Engine terminal interfaces:
   <br>
   <em>Figure 5: 5-Year strategy backtest terminal showing equity curves, drawdown analysis, and trade-by-trade performance metrics.</em>
 </div>
+
+---
+
 ##  Core Engine Architectures
 
 This terminal operates on four distinct analytical layers, ensuring a comprehensive approach to market analysis:
