@@ -14,8 +14,7 @@
 ##  Dashboard Preview
 
 <div align="center">
-  <!-- Ganti URL di bawah dengan gambar/GIF dashboard Streamlit kamu nanti -->
-  <img src="https://via.placeholder.com/800x400.png?text=Insert+Streamlit+Dashboard+Screenshot+Here" alt="Dashboard Preview" width="800">
+  <img src="[https://via.placeholder.com/800x400.png?text=Insert+Streamlit+Dashboard+Screenshot+Here](https://via.placeholder.com/800x400.png?text=Insert+Streamlit+Dashboard+Screenshot+Here)" alt="Dashboard Preview" width="800">
   <br>
   <em>Figure 1: Real-time volatility tracking and LSTM-based price forecasting interface.</em>
 </div>
@@ -59,7 +58,7 @@ gold-price-forecast-ml/
 
 ---
 
-##  Technology Stack
+## 🛠️ Technology Stack
 
 | Category | Technologies |
 | :--- | :--- |
@@ -71,37 +70,47 @@ gold-price-forecast-ml/
 
 ---
 
-##  Local Execution Guide
+## 💻 Local Execution Guide
 
 Follow these steps to deploy the terminal on your local machine:
 
 **1. Clone the repository:**
 
-git clone https://github.com/dimssrmdn01/gold-price-forecast-ml.git
+```bash
+git clone [https://github.com/dimssrmdn01/gold-price-forecast-ml.git](https://github.com/dimssrmdn01/gold-price-forecast-ml.git)
 cd gold-price-forecast-ml
+```
 
 **2. Initialize Virtual Environment (Recommended):**
 
+```bash
 python -m venv venv
 # Windows
 venv\Scripts\activate
 # macOS/Linux
 # source venv/bin/activate
+```
 
 **3. Install dependencies:**
 
+```bash
 pip install -r requirements.txt
+```
 
 **4. Execute the pipeline sequentially:**
 
+```bash
 python Src/data_loader.py
 python Src/features.py
 python Src/train.py
 python Src/evaluate.py
+```
 
 **5. Launch the Dashboard:**
 
+```bash
 streamlit run app.py
+```
 
 ---
 *Developed for advanced quantitative research and algorithmic trading simulations.*
