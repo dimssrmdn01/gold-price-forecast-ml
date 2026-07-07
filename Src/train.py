@@ -6,29 +6,29 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report
 
 def load_config(config_path="config.yaml"):
+    # Load config
     with open(config_path, "r") as file:
         return yaml.safe_load(file)
 
 def train_model(input_path="data/processed/xauusd_features.csv", model_path="models/xgboost_model.pkl"):
-    print("Reading configuration and loading processed data...")
+    print("Loading processed data...")
     config = load_config()
     df = pd.read_csv(input_path, index_col=0, parse_dates=True)
     
-    # Memisahkan Fitur (X) dan Target (y)
-    # Kolom 'Target' dan 'Log_Return' didrop agar tidak terjadi kebocoran data (data leakage)
+    # Split features
     X = df.drop(columns=['Target', 'Log_Return'])
     y = df['Target']
     
-    # Time-Series Split (Penting: Data time-series tidak boleh di-shuffle/diacak)
+    # Time-series split
     test_size = config['model']['test_size']
     split_idx = int(len(df) * (1 - test_size))
     
     X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
     y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
     
-    print(f"Training data: {len(X_train)} rows | Testing data: {len(X_test)} rows")
+    print(f"Train size: {len(X_train)} | Test size: {len(X_test)}")
     
-    # Inisialisasi dan Pelatihan Model XGBoost
+    # Init model
     print("Training XGBoost model...")
     model = XGBClassifier(
         n_estimators=config['model']['n_estimators'],
@@ -37,24 +37,25 @@ def train_model(input_path="data/processed/xauusd_features.csv", model_path="mod
         eval_metric='logloss'
     )
     
+    # Train model
     model.fit(X_train, y_train)
     
-    # Evaluasi Performa Model
+    # Evaluate model
     print("Evaluating model...")
     predictions = model.predict(X_test)
     acc = accuracy_score(y_test, predictions)
     
-    print(f"\n--- RESULTS ---")
-    print(f"Accuracy on Test Set: {acc * 100:.2f}%")
-    print("Classification Report:")
+    print("\n--- RESULTS ---")
+    print(f"Test Accuracy: {acc * 100:.2f}%")
+    print("Classification Report:\n")
     print(classification_report(y_test, predictions))
     
-    # Menyimpan Model
+    # Save model
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
     with open(model_path, 'wb') as f:
         pickle.dump(model, f)
         
-    print(f"\nModel successfully saved to: {model_path}")
+    print(f"\nModel saved: {model_path}")
 
 if __name__ == "__main__":
     train_model()
