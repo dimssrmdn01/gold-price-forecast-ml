@@ -13,8 +13,8 @@ import torch
 import torch.nn as nn
 import warnings
 
-# --- IMPORT MONTE CARLO MODULE ---
-from Src.monte_carlo import run_monte_carlo, calculate_risk_metrics
+#IMPORT MONTE CARLO MODULE 
+from monte_carlo import run_monte_carlo, calculate_risk_metrics
 
 warnings.filterwarnings('ignore')
 
