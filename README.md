@@ -11,7 +11,7 @@
 
 ---
 
-##  Dashboard Preview
+## Dashboard Preview
 
 Here is a detailed look at the Institutional Quant Engine terminal interfaces:
 
@@ -60,7 +60,7 @@ Here is a detailed look at the Institutional Quant Engine terminal interfaces:
 
 ---
 
-##  Core Engine Architectures
+## Core Engine Architectures
 
 This terminal operates on four distinct analytical layers, ensuring a comprehensive approach to market analysis:
 
@@ -83,7 +83,7 @@ This terminal operates on four distinct analytical layers, ensuring a comprehens
 
 ---
 
-##  Project Structure
+## Project Structure
 ```
 gold-price-forecast-ml/
 ├── Src/
@@ -95,7 +95,7 @@ gold-price-forecast-ml/
 ├── requirements.txt      # Project dependencies and libraries
 └── README.md             # Project documentation
 ```
-##  Technology Stack
+## Technology Stack
 
 | Category | Technologies |
 | :--- | :--- |
@@ -107,7 +107,7 @@ gold-price-forecast-ml/
 
 ---
 
-##  Local Execution Guide
+## Local Execution Guide
 
 Follow these steps to deploy the terminal on your local machine:
 
