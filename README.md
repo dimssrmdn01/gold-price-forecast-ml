@@ -1,7 +1,5 @@
 <div align="center">
 
-# Institutional Asset Quantitative & Predictive Engine
-
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=24&pause=1000&color=EE4C2C&center=true&vCenter=true&width=700&lines=Institutional+Quant+Engine;Powered+by+PyTorch+%26+Lasso;Real-Time+XAU%2FUSD+Forecasting;Algorithmic+Execution+%26+NLP)](https://git.io/typing-svg)
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
