@@ -1,9 +1,15 @@
-## Institutional Asset Quantitative & Predictive Engine
+<div align="center">
+
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=24&pause=1000&color=EE4C2C&center=true&vCenter=true&width=700&lines=Institutional+Quant+Engine;Powered+by+PyTorch+%26+Lasso;Real-Time+XAU%2FUSD+Forecasting;Algorithmic+Execution+%26+NLP)](https://git.io/typing-svg)
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge)
+
+</div>
+
+<br>
 
 > **Empowering financial decisions with machine learning and real-time sentiment analysis.**
 > 
@@ -11,7 +17,7 @@
 
 ---
 
-##  Dashboard Preview
+## Dashboard Preview
 
 Here is a detailed look at the Institutional Quant Engine terminal interfaces:
 
@@ -60,7 +66,7 @@ Here is a detailed look at the Institutional Quant Engine terminal interfaces:
 
 ---
 
-##  Core Engine Architectures
+## Core Engine Architectures
 
 This terminal operates on four distinct analytical layers, ensuring a comprehensive approach to market analysis:
 
@@ -83,7 +89,7 @@ This terminal operates on four distinct analytical layers, ensuring a comprehens
 
 ---
 
-##  Project Structure
+## Project Structure
 ```
 gold-price-forecast-ml/
 ├── Src/
@@ -95,7 +101,7 @@ gold-price-forecast-ml/
 ├── requirements.txt      # Project dependencies and libraries
 └── README.md             # Project documentation
 ```
-##  Technology Stack
+## Technology Stack
 
 | Category | Technologies |
 | :--- | :--- |
@@ -107,7 +113,7 @@ gold-price-forecast-ml/
 
 ---
 
-##  Local Execution Guide
+## Local Execution Guide
 
 Follow these steps to deploy the terminal on your local machine:
 
