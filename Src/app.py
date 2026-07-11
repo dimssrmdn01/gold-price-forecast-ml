@@ -527,9 +527,14 @@ if "messages" not in st.session_state:
 
 # Render Chat
 for msg in st.session_state.messages:
-    if msg["role"] not in ["system", "tool"]: # Sembunyikan prompt
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    # Cek tipe
+    role = msg.get("role") if isinstance(msg, dict) else msg.role
+    content = msg.get("content") if isinstance(msg, dict) else msg.content
+    
+    # Filter UI
+    if role not in ["system", "tool"] and content:
+        with st.chat_message(role):
+            st.markdown(content)
 
 # User Input
 if prompt := st.chat_input("Ketik instruksi..."):
@@ -583,7 +588,8 @@ if prompt := st.chat_input("Ketik instruksi..."):
                 
                 # Cek Tools
                 if response_msg.tool_calls:
-                    st.session_state.messages.append(response_msg)
+                    # Simpan memori
+                    st.session_state.messages.append(response_msg.model_dump())
                     
                     for tool_call in response_msg.tool_calls:
                         func_name = tool_call.function.name
