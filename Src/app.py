@@ -13,13 +13,13 @@ import torch
 import torch.nn as nn
 import warnings
 
-#IMPORT MONTE CARLO MODULE 
+# Import module
 from monte_carlo import run_monte_carlo, calculate_risk_metrics
 
 warnings.filterwarnings('ignore')
 
 # -------------------------------------------------------------------
-# CONFIGURATION
+# SETUP CONFIG
 # -------------------------------------------------------------------
 st.set_page_config(page_title="Quant Engine", layout="wide", initial_sidebar_state="expanded")
 
@@ -105,7 +105,7 @@ hr {
 # MODEL LSTM
 # -------------------------------------------------------------------
 class XAUUSDForecasterLSTM(nn.Module):
-    #Inisialisasi layer
+    # Init layer
     def __init__(self, input_dim=1, hidden_dim=64, num_layers=2, output_dim=1):
         super(XAUUSDForecasterLSTM, self).__init__()
         self.hidden_dim = hidden_dim
@@ -113,7 +113,7 @@ class XAUUSDForecasterLSTM(nn.Module):
         self.lstm = nn.LSTM(input_size=input_dim, hidden_size=hidden_dim, num_layers=num_layers, batch_first=True)
         self.fc = nn.Linear(hidden_dim, output_dim)
         
-    #Forward pass
+    # Forward pass
     def forward(self, x):
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).requires_grad_()
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).requires_grad_()
@@ -124,37 +124,37 @@ class XAUUSDForecasterLSTM(nn.Module):
 # -------------------------------------------------------------------
 # SIDEBAR CONTROL
 # -------------------------------------------------------------------
-st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #D4AF37;'> QUANT TERMINAL</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #D4AF37;'> ✦ TERMINAL</h2>", unsafe_allow_html=True)
 ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F")
 backtest_days = st.sidebar.slider("Historical Data (Days)", min_value=60, max_value=365, value=180)
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Strategy Parameters")
-short_window = st.sidebar.number_input("Fast MA (Days)", min_value=5, max_value=30, value=20)
-long_window = st.sidebar.number_input("Slow MA (Days)", min_value=31, max_value=100, value=50)
+st.sidebar.subheader("⚙️ Parameters")
+short_window = st.sidebar.number_input("Fast MA", min_value=5, max_value=30, value=20)
+long_window = st.sidebar.number_input("Slow MA", min_value=31, max_value=100, value=50)
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Risk Manager")
-account_capital = st.sidebar.number_input("Total Capital ($)", min_value=1000, max_value=1000000, value=10000, step=1000)
-risk_percentage = st.sidebar.slider("Risk Per Trade (%)", min_value=0.5, max_value=5.0, value=1.0, step=0.5)
+st.sidebar.subheader("🛡️ Risk")
+account_capital = st.sidebar.number_input("Capital ($)", min_value=1000, max_value=1000000, value=10000, step=1000)
+risk_percentage = st.sidebar.slider("Risk (%)", min_value=0.5, max_value=5.0, value=1.0, step=0.5)
 
 # -------------------------------------------------------------------
-# HEADER
+# MAIN HEADER
 # -------------------------------------------------------------------
 st.markdown(f'<h1 class="terminal-header">{ticker} QUANTITATIVE ENGINE</h1>', unsafe_allow_html=True)
-st.markdown('<div class="terminal-sub"> SYSTEM STATUS: OPERATIONAL | PREDICTIVE ANALYTICS & EXECUTION FRAMEWORK </div>', unsafe_allow_html=True)
+st.markdown('<div class="terminal-sub"> ✦ OPERATIONAL | PREDICTIVE ANALYTICS </div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
 # DATA INGESTION
 # -------------------------------------------------------------------
 @st.cache_data(ttl=1800)
 def fetch_institutional_data(symbol, days):
-    # Tarik data
+    # Fetch data
     end_date = datetime.today()
     start_date = end_date - timedelta(days=days + 100)
     df = yf.download(symbol, start=start_date, end=end_date, progress=False)
     
-    # Flatten kolom
+    # Flatten columns
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel(1)
     return df
@@ -163,42 +163,42 @@ try:
     df_raw = fetch_institutional_data(ticker, backtest_days)
     
     if df_raw.empty:
-        # Error validasi
-        st.error("Execution Terminated: Invalid ticker!")
+        # Error check
+        st.error("Execution Terminated!")
     else:
         df = df_raw.copy()
         
-        # Ekstrak fitur
+        # Extract features
         df['MA_Fast'] = df['Close'].rolling(window=short_window).mean()
         df['MA_Slow'] = df['Close'].rolling(window=long_window).mean()
         
-        # Hitung volatilitas
+        # Calc volatility
         df['H-L'] = df['High'] - df['Low']
         df['H-PC'] = abs(df['High'] - df['Close'].shift(1))
         df['L-PC'] = abs(df['Low'] - df['Close'].shift(1))
         df['TR'] = df[['H-L', 'H-PC', 'L-PC']].max(axis=1)
         df['ATR'] = df['TR'].rolling(window=14).mean()
         
-        # Hitung log-return
+        # Calc return
         df['Log_Return'] = np.log(df['Close'] / df['Close'].shift(1))
         df_filtered = df.tail(backtest_days).copy()
         
-        # Algoritma crossover
+        # Crossover logic
         df_filtered['Signal'] = np.where(df_filtered['MA_Fast'] > df_filtered['MA_Slow'], 1, -1)
         df_filtered['Strategy_Return'] = df_filtered['Log_Return'] * df_filtered['Signal'].shift(1)
         
-        # Marker sinyal
+        # Signal marker
         df_filtered['Position_Changes'] = df_filtered['Signal'].diff()
         df_filtered['Buy_Markers'] = np.where(df_filtered['Position_Changes'] == 2, df_filtered['Close'], np.nan)
         df_filtered['Sell_Markers'] = np.where(df_filtered['Position_Changes'] == -2, df_filtered['Close'], np.nan)
         
-        # Hitung metrik
+        # Calc metrics
         latest_price = float(df_filtered['Close'].iloc[-1])
         current_atr = float(df_filtered['ATR'].iloc[-1])
         asset_cum_return = (np.exp(df_filtered['Log_Return'].sum()) - 1) * 100
         strategy_cum_return = (np.exp(df_filtered['Strategy_Return'].sum()) - 1) * 100
         
-        # Hitung drawdown
+        # Calc drawdown
         strategy_cum_wealth = np.exp(df_filtered['Strategy_Return'].cumsum())
         peak = strategy_cum_wealth.cummax()
         drawdown = (strategy_cum_wealth - peak) / peak
@@ -209,32 +209,32 @@ try:
         stop_loss_distance = current_atr * 2 
         simulated_position_size = cash_risk / stop_loss_distance if stop_loss_distance > 0 else 0.0
 
-        # UI Metrik
+        # UI metrics
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Spot Asset Price", f"${latest_price:,.2f}")
-        m2.metric("Market Volatility (ATR)", f"${current_atr:.2f}")
-        m3.metric("Algo Net Return", f"{strategy_cum_return:+.2f}%", delta=f"{strategy_cum_return - asset_cum_return:.2f}% vs Market")
-        m4.metric("Max Algo Drawdown", f"{max_drawdown:.2f}%")
+        m1.metric("Spot Price", f"${latest_price:,.2f}")
+        m2.metric("Volatility (ATR)", f"${current_atr:.2f}")
+        m3.metric("Algo Return", f"{strategy_cum_return:+.2f}%", delta=f"{strategy_cum_return - asset_cum_return:.2f}%")
+        m4.metric("Max Drawdown", f"{max_drawdown:.2f}%")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        tab1, tab2, tab3 = st.tabs([" Execution Chart", " Risk Sizing", " Raw Matrix"])
+        tab1, tab2, tab3 = st.tabs([" Chart", " Size", " Matrix"])
         
         with tab1:
-            # Upgrade Plotly
-            st.markdown("<h3 style='font-family: Bebas Neue; color: white;'>Quantitative Execution History</h3>", unsafe_allow_html=True)
+            # Execution chart
+            st.markdown("<h3 style='font-family: Bebas Neue; color: white;'>Execution History</h3>", unsafe_allow_html=True)
             
             fig = go.Figure()
-            # Plot harga
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Close'], name='Spot Price', line=dict(color='#D4AF37', width=2)))
+            # Plot price
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Close'], name='Spot', line=dict(color='#D4AF37', width=2)))
             # Plot MA
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Fast'], name=f'Fast MA', line=dict(color='#00D2FF', dash='dot')))
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Slow'], name=f'Slow MA', line=dict(color='#FF3B30', dash='dot')))
-            # Plot Sinyal
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Fast'], name='Fast MA', line=dict(color='#00D2FF', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Slow'], name='Slow MA', line=dict(color='#FF3B30', dash='dot')))
+            # Plot signal
             fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Buy_Markers'], mode='markers', name='LONG', marker=dict(symbol='triangle-up', size=14, color='#34C759', line=dict(width=1, color='white'))))
             fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Sell_Markers'], mode='markers', name='SHORT', marker=dict(symbol='triangle-down', size=14, color='#FF3B30', line=dict(width=1, color='white'))))
             
-            # Styling grafik
+            # Style chart
             fig.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
@@ -247,17 +247,17 @@ try:
             st.plotly_chart(fig, use_container_width=True)
 
         with tab2:
-            # Info risiko
+            # Risk info
             c1, c2 = st.columns(2)
             with c1:
-                st.info(f" **Allowed Cash Risk:** ${cash_risk:,.2f} per trade")
-                st.markdown(f"**Target Stop Loss:** ${stop_loss_distance:.2f} (2x ATR)")
+                st.info(f" ✦ Cash Risk: ${cash_risk:,.2f}")
+                st.markdown(f"✦ Stop Loss: ${stop_loss_distance:.2f}")
             with c2:
-                st.success(f" **SIMULATED SIZE:** {simulated_position_size:.3f} units")
-                st.markdown(f"**Capital Allocation:** ${simulated_position_size * latest_price:,.2f}")
+                st.success(f" ✦ SIMULATED: {simulated_position_size:.3f} units")
+                st.markdown(f"✦ Allocation: ${simulated_position_size * latest_price:,.2f}")
 
         with tab3:
-            # Data raw
+            # Raw data
             st.dataframe(df_filtered[['Close', 'MA_Fast', 'MA_Slow', 'ATR', 'Strategy_Return', 'Signal']].tail(15), use_container_width=True)
             
 except Exception as e:
@@ -267,11 +267,11 @@ except Exception as e:
 # MACRO RADAR
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Global Macro Radar</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Macro Radar</h2>", unsafe_allow_html=True)
 
-with st.spinner("Sinkronisasi data makro..."):
+with st.spinner("Sinkronisasi data..."):
     try:
-        # Kamus instrumen
+        # Instrument dict
         macro_basket = {
             "Primary": ticker,
             "S&P 500": "^GSPC",
@@ -280,7 +280,7 @@ with st.spinner("Sinkronisasi data makro..."):
         }
         
         macro_data = pd.DataFrame()
-        # Looping tarikan
+        # Fetch loop
         for name, sym in macro_basket.items():
             temp_df = yf.download(sym, period=f"{backtest_days}d", progress=False)
             if not temp_df.empty and 'Close' in temp_df.columns:
@@ -293,7 +293,7 @@ with st.spinner("Sinkronisasi data makro..."):
         
         with col_macro1:
             st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>MATRIKS KORELASI</span>", unsafe_allow_html=True)
-            # Heatmap korelasi
+            # Correlation heatmap
             fig_corr = go.Figure(data=go.Heatmap(
                 z=corr_matrix.values, x=corr_matrix.columns, y=corr_matrix.columns,
                 colorscale='RdBu', zmin=-1, zmax=1, text=np.round(corr_matrix.values, 2),
@@ -303,11 +303,11 @@ with st.spinner("Sinkronisasi data makro..."):
             st.plotly_chart(fig_corr, use_container_width=True)
             
         with col_macro2:
-            st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>PERBANDINGAN KINERJA (BASE 100)</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>KINERJA (BASE 100)</span>", unsafe_allow_html=True)
             normalized_data = (macro_data / macro_data.iloc[0]) * 100
             fig_line = go.Figure()
             
-            # Plot garis
+            # Line plot
             for col in normalized_data.columns:
                 width = 3 if col == "Primary" else 1.5
                 dash = 'solid' if col == "Primary" else 'dot'
@@ -317,10 +317,10 @@ with st.spinner("Sinkronisasi data makro..."):
             st.plotly_chart(fig_line, use_container_width=True)
             
     except Exception as e:
-        st.error(f"Gagal memuat radar: {str(e)}")
+        st.error(f"Gagal radar: {str(e)}")
 
 # -------------------------------------------------------------------
-# ML & DL ENGINES
+# ML ENGINES
 # -------------------------------------------------------------------
 st.divider()
 st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Predictive Architectures</h2>", unsafe_allow_html=True)
@@ -328,7 +328,7 @@ st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Predictive Arch
 col_ai1, col_ai2 = st.columns(2, gap="large")
 
 with col_ai1:
-    # Kontainer Lasso
+    # Lasso container
     with st.container(border=True):
         st.markdown("<h3 style='font-family: Space Mono; color: #00d2ff;'> Lasso Regression</h3>", unsafe_allow_html=True)
         with st.spinner("Konfigurasi ML..."):
@@ -354,38 +354,38 @@ with col_ai1:
                     model_ml = Lasso(alpha=0.1)
                     model_ml.fit(X_train, y_train)
                     
-                    # Evaluasi
+                    # Eval model
                     predictions = model_ml.predict(X_test)
                     rmse = np.sqrt(mean_squared_error(y_test, predictions))
                     next_day_pred = model_ml.predict(X.iloc[-1].values.reshape(1, -1))[0]
                     
                     l1, l2 = st.columns(2)
-                    l1.metric("Prediksi (T+1)", f"${next_day_pred:,.2f}")
-                    l2.metric("RMSE Akurasi", f"${rmse:,.2f}")
+                    l1.metric("Prediksi", f"${next_day_pred:,.2f}")
+                    l2.metric("RMSE", f"${rmse:,.2f}")
             except Exception as e:
                 st.error(f"ML Error: {e}")
 
 with col_ai2:
-    # Kontainer PyTorch
+    # PyTorch container
     with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #b026ff;'> PyTorch LSTM Core</h3>", unsafe_allow_html=True)
-        if st.button("INITIALIZE TENSOR COMPUTATION", use_container_width=True):
+        st.markdown("<h3 style='font-family: Space Mono; color: #b026ff;'> PyTorch LSTM</h3>", unsafe_allow_html=True)
+        if st.button("INITIALIZE TENSOR", use_container_width=True):
             with st.spinner("Iterasi pelatihan..."):
                 try:
                     seq_length = 10
                     raw_dl = yf.download(ticker, period="2y", progress=False)
                     
-                    # Skala data
+                    # Scale data
                     scaler = MinMaxScaler(feature_range=(0, 1))
                     scaled_data = scaler.fit_transform(raw_dl[['Close']].values)
                     
-                    # Buat sekuens
+                    # Create sequence
                     X_dl, y_dl = [], []
                     for i in range(len(scaled_data) - seq_length):
                         X_dl.append(scaled_data[i:(i + seq_length), 0])
                         y_dl.append(scaled_data[i + seq_length, 0]) 
                         
-                    # Konversi tensor
+                    # Convert tensor
                     X_tensor = torch.FloatTensor(np.array(X_dl).reshape(-1, seq_length, 1))
                     y_tensor = torch.FloatTensor(np.array(y_dl).reshape(-1, 1))
                     
@@ -403,7 +403,7 @@ with col_ai2:
                         optimizer.step()
                         progress.progress((epoch + 1) / 50)
                     
-                    # Prediksi
+                    # Predict data
                     model_dl.eval()
                     with torch.no_grad():
                         pred_scaled = model_dl(X_tensor[-1:].clone().detach())
@@ -412,80 +412,80 @@ with col_ai2:
                     lstm_actual = raw_dl['Close'].iloc[-1].item()
                     
                     d1, d2 = st.columns(2)
-                    d1.metric("Harga Aktual", f"${lstm_actual:,.2f}")
-                    d2.metric("Proyeksi LSTM", f"${lstm_pred:,.2f}", f"{lstm_pred - lstm_actual:+.2f} USD")
+                    d1.metric("Aktual", f"${lstm_actual:,.2f}")
+                    d2.metric("Proyeksi", f"${lstm_pred:,.2f}", f"{lstm_pred - lstm_actual:+.2f}")
                 except Exception as e:
                     st.error(f"PyTorch Error: {e}")
 
 # -------------------------------------------------------------------
-# BACKTESTING (VECTORBT)
+# VECTORBT BACKTEST
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> 5-Year Strategy Backtest</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> 5-Year Backtest</h2>", unsafe_allow_html=True)
 
 with st.spinner("Komputasi historis..."):
     try:
         import vectorbt as vbt
         
-        # Tarik data
+        # Fetch data
         bt_data = yf.download(ticker, period="5y", progress=False)
         if isinstance(bt_data.columns, pd.MultiIndex):
             bt_data.columns = bt_data.columns.droplevel(1)
         price_series = bt_data['Close']
             
-        # Sinyal vektor
+        # Vector signal
         fast_ma = vbt.MA.run(price_series, short_window)
         slow_ma = vbt.MA.run(price_series, long_window)
         entries = fast_ma.ma_crossed_above(slow_ma)
         exits = fast_ma.ma_crossed_below(slow_ma)
         
-        # Eksekusi simulasi
+        # Run sim
         portfolio = vbt.Portfolio.from_signals(price_series, entries, exits, init_cash=account_capital, fees=0.001)
         
-        # Metrik
+        # Calc metrics
         col_bt1, col_bt2, col_bt3, col_bt4 = st.columns(4)
-        col_bt1.metric("Total Kuantitatif", f"{portfolio.total_return() * 100:.2f}%")
-        col_bt2.metric("Net Profit", f"${portfolio.total_profit():,.2f}")
+        col_bt1.metric("Return", f"{portfolio.total_return() * 100:.2f}%")
+        col_bt2.metric("Profit", f"${portfolio.total_profit():,.2f}")
         col_bt3.metric("Win Rate", f"{portfolio.trades.win_rate() * 100:.2f}%")
-        col_bt4.metric("Max Drawdown", f"{portfolio.max_drawdown() * 100:.2f}%")
+        col_bt4.metric("Drawdown", f"{portfolio.max_drawdown() * 100:.2f}%")
         
-        # Plot
+        # Plot chart
         fig_bt = portfolio.plot()
         fig_bt.update_layout(height=500, template="plotly_dark", margin=dict(l=0, r=0, t=20, b=0), plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_bt, use_container_width=True)
         
     except ImportError:
-        st.warning("Install 'vectorbt' untuk fitur ini!")
+        st.warning("Install vectorbt!")
     except Exception as e:
         st.error(f"Backtest Error: {e}")
 
 # -------------------------------------------------------------------
-# MONTE CARLO STRESS TESTING ENGINE
+# MONTE CARLO
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Monte Carlo Stress Testing</h2>", unsafe_allow_html=True)
-st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>Simulasi stokastik untuk memproyeksikan skenario pergerakan harga ekstrem berdasarkan volatilitas historis (Risk Analysis).</span>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Monte Carlo</h2>", unsafe_allow_html=True)
+st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>Simulasi stokastik.</span>", unsafe_allow_html=True)
 
-with st.spinner("Menjalankan ribuan simulasi Monte Carlo..."):
+with st.spinner("Menjalankan simulasi..."):
     try:
         if 'df' in locals() and not df.empty:
             historical_closes = df['Close']
             
-            # Eksekusi fungsi
+            # Run function
             sim_df = run_monte_carlo(historical_closes, days_ahead=30, simulations=500)
             v95, v99 = calculate_risk_metrics(sim_df)
             
-            # Render metrik
+            # Render metrics
             col_mc1, col_mc2 = st.columns(2)
-            col_mc1.metric("95% Confidence (Worst Case)", f"${v95:,.2f}")
-            col_mc2.metric("99% Confidence (Worst Case)", f"${v99:,.2f}")
+            col_mc1.metric("95% Confidence", f"${v95:,.2f}")
+            col_mc2.metric("99% Confidence", f"${v99:,.2f}")
             
-            # Visualisasi Plotly
+            # Plotly chart
             fig_mc = go.Figure()
             for col in sim_df.columns[:100]:
                 fig_mc.add_trace(go.Scatter(
                     y=sim_df[col], mode='lines', 
-                    line=dict(width=1, color='rgba(212, 175, 55, 0.08)'), # Warna gold transparan menyesuaikan tema
+                    line=dict(width=1, color='rgba(212, 175, 55, 0.08)'), 
                     showlegend=False
                 ))
                 
@@ -502,7 +502,129 @@ with st.spinner("Menjalankan ribuan simulasi Monte Carlo..."):
             )
             st.plotly_chart(fig_mc, use_container_width=True)
         else:
-            st.warning("Data historis tidak tersedia.")
+            st.warning("Data kosong.")
             
     except Exception as e:
-        st.error(f"Monte Carlo Error: {e}")
+        st.error(f"Monte Carlo: {e}")
+
+# -------------------------------------------------------------------
+# AI AGENT
+# -------------------------------------------------------------------
+st.divider()
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> ✧ AI Agent</h2>", unsafe_allow_html=True)
+
+# API Key
+st.sidebar.markdown("---")
+st.sidebar.subheader("⚙️ Agent")
+groq_api_key = st.sidebar.text_input("Groq Key:", type="password")
+
+# Init Memory
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "system", "content": "Kamu AI Quant. Gunakan tools untuk mengambil data riil dari dashboard. Jawablah layaknya analis finansial profesional."},
+        {"role": "assistant", "content": "Halo. Saya AI Quant Agent. Ada yang bisa dianalisis hari ini?"}
+    ]
+
+# Render Chat
+for msg in st.session_state.messages:
+    if msg["role"] not in ["system", "tool"]: # Sembunyikan prompt
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+# User Input
+if prompt := st.chat_input("Ketik instruksi..."):
+    
+    # Show User
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Check Key
+    if not groq_api_key:
+        st.error("Masukkan API.")
+    else:
+        # Call Groq
+        from groq import Groq
+        import json
+        client = Groq(api_key=groq_api_key)
+        
+        # Tools Def
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_predictions",
+                    "description": "Ambil hasil prediksi Lasso dan LSTM terbaru.",
+                    "parameters": {"type": "object", "properties": {}}
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_backtest",
+                    "description": "Ambil metrik backtest (Return, Profit, Drawdown).",
+                    "parameters": {"type": "object", "properties": {}}
+                }
+            }
+        ]
+
+        with st.chat_message("assistant"):
+            msg_placeholder = st.empty()
+            try:
+                # Request AI
+                response = client.chat.completions.create(
+                    messages=st.session_state.messages,
+                    model="llama3-70b-8192", 
+                    tools=tools,
+                    tool_choice="auto"
+                )
+                
+                response_msg = response.choices[0].message
+                
+                # Cek Tools
+                if response_msg.tool_calls:
+                    st.session_state.messages.append(response_msg)
+                    
+                    for tool_call in response_msg.tool_calls:
+                        func_name = tool_call.function.name
+                        
+                        # Execute Tool
+                        if func_name == "get_predictions":
+                            val_lasso = locals().get('next_day_pred', 'Belum dikomputasi')
+                            val_lstm = locals().get('lstm_pred', 'Belum dikomputasi')
+                            result = f"Prediksi Lasso: {val_lasso}, Prediksi PyTorch LSTM: {val_lstm}"
+                        elif func_name == "get_backtest":
+                            port = locals().get('portfolio', None)
+                            if port:
+                                result = f"Return: {port.total_return()*100:.2f}%, Profit: ${port.total_profit():.2f}, Max Drawdown: {port.max_drawdown()*100:.2f}%"
+                            else:
+                                result = "Data backtest kosong."
+                        else:
+                            result = "Fungsi invalid."
+                            
+                        # Save Tool
+                        st.session_state.messages.append({
+                            "tool_call_id": tool_call.id,
+                            "role": "tool",
+                            "name": func_name,
+                            "content": result
+                        })
+                        
+                    # Request Final
+                    final_response = client.chat.completions.create(
+                        messages=st.session_state.messages,
+                        model="llama3-70b-8192"
+                    )
+                    final_reply = final_response.choices[0].message.content
+                    msg_placeholder.markdown(final_reply)
+                    st.session_state.messages.append({"role": "assistant", "content": final_reply})
+                    
+                else:
+                    # Normal Reply
+                    final_reply = response_msg.content
+                    msg_placeholder.markdown(final_reply)
+                    st.session_state.messages.append({"role": "assistant", "content": final_reply})
+
+            except Exception as e:
+                # Catch Error
+                st.error(f"Error AI: {e}")
