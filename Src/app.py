@@ -574,7 +574,7 @@ if prompt := st.chat_input("Ketik instruksi..."):
                 # Request AI
                 response = client.chat.completions.create(
                     messages=st.session_state.messages,
-                    model="llama3-70b-8192", 
+                    model="llama-3.3-70b-versatile", 
                     tools=tools,
                     tool_choice="auto"
                 )
@@ -613,7 +613,7 @@ if prompt := st.chat_input("Ketik instruksi..."):
                     # Request Final
                     final_response = client.chat.completions.create(
                         messages=st.session_state.messages,
-                        model="llama3-70b-8192"
+                        model="llama-3.3-70b-versatile"
                     )
                     final_reply = final_response.choices[0].message.content
                     msg_placeholder.markdown(final_reply)
