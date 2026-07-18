@@ -21,82 +21,112 @@ warnings.filterwarnings('ignore')
 # -------------------------------------------------------------------
 # SETUP CONFIG
 # -------------------------------------------------------------------
-st.set_page_config(page_title="Quant Engine", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Quant Engine | Cyberpunk Ed.", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS
+# Custom CSS (CYBERPUNK RED THEME)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-    --bg-base: #050507;
-    --panel-bg: rgba(15, 18, 25, 0.8);
-    --gold: #D4AF37;
-    --gold-glow: rgba(212, 175, 55, 0.15);
-    --cyan: #00d2ff;
-    --red: #ff3b30;
-    --green: #34c759;
-    --border: rgba(255, 255, 255, 0.08);
+    --bg-base: #08080a; /* Background sangat gelap */
+    --panel-bg: rgba(18, 5, 5, 0.75); /* Kaca gelap dengan sedikit rona merah */
+    --neon-red: #FF003C; /* Cyberpunk Red Utama */
+    --red-glow: rgba(255, 0, 60, 0.35);
+    --neon-yellow: #FCEE0A; /* Aksen Kuning Cyberpunk */
+    --cyan: #00F0FF; /* Aksen Cyan */
+    --green: #00FF66;
+    --border: rgba(255, 0, 60, 0.4);
 }
 
 .stApp {
     background-color: var(--bg-base);
-    background-image: radial-gradient(circle at 50% 0%, var(--gold-glow), transparent 40%);
+    /* Grid Pattern Background ala Cyberpunk */
+    background-image: 
+        linear-gradient(rgba(255, 0, 60, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 60, 0.04) 1px, transparent 1px);
+    background-size: 35px 35px;
     color: #e0e0e0;
 }
 
+/* Glitch Effect Header */
 .terminal-header {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 3.5rem;
-    color: var(--gold);
-    letter-spacing: 2px;
+    font-size: 4.5rem;
+    color: var(--neon-red);
+    letter-spacing: 5px;
     margin-bottom: 0;
-    text-shadow: 0 0 15px var(--gold-glow);
+    text-shadow: 3px 0px 0px var(--cyan), -3px 0px 0px var(--neon-yellow), 0 0 25px var(--red-glow);
+    text-transform: uppercase;
 }
 
 .terminal-sub {
     font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--cyan);
-    letter-spacing: 1px;
+    font-size: 0.95rem;
+    color: var(--neon-yellow);
+    letter-spacing: 3px;
     margin-bottom: 2rem;
+    border-left: 4px solid var(--neon-red);
+    padding-left: 12px;
+    text-shadow: 0 0 8px rgba(252, 238, 10, 0.5);
+    background: linear-gradient(90deg, rgba(255,0,60,0.15) 0%, transparent 100%);
 }
 
+/* Metrik Kotak ala HUD (Heads Up Display) */
 div[data-testid="stMetric"] {
     background: var(--panel-bg);
     border: 1px solid var(--border);
-    border-top: 3px solid var(--gold);
+    border-top: 4px solid var(--neon-red);
     padding: 1rem 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    transition: transform 0.2s ease;
+    border-radius: 2px; /* Dibuat tajam tanpa lengkungan besar */
+    box-shadow: 0 0 15px rgba(255, 0, 60, 0.1);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
 }
 
 div[data-testid="stMetric"]:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 0 25px var(--red-glow);
+    border-color: var(--neon-red);
 }
 
 div[data-testid="stMetric"] label {
     font-family: 'Space Mono', monospace;
-    color: #8b949e;
-    font-size: 0.8rem;
+    color: #ff7597;
+    font-size: 0.85rem;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
     font-family: 'Bebas Neue', sans-serif;
     color: white;
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
 /* Sidebar Styling */
 [data-testid="stSidebar"] {
-    background-color: #0a0c10;
+    background-color: #050505;
     border-right: 1px solid var(--border);
 }
 
 hr {
     border-color: var(--border);
+}
+
+/* Kustomisasi Tab Streamlit */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 24px;
+}
+.stTabs [data-baseweb="tab"] {
+    color: #ff7597;
+    font-family: 'Space Mono', monospace;
+}
+.stTabs [aria-selected="true"] {
+    color: var(--neon-red) !important;
+    border-bottom-color: var(--neon-red) !important;
+    text-shadow: 0 0 10px var(--red-glow);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -124,25 +154,25 @@ class XAUUSDForecasterLSTM(nn.Module):
 # -------------------------------------------------------------------
 # SIDEBAR CONTROL
 # -------------------------------------------------------------------
-st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #D4AF37;'> ✦ TERMINAL</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; letter-spacing: 2px; text-shadow: 0 0 15px rgba(255,0,60,0.6);'> ✦ SYS_CONTROL</h2>", unsafe_allow_html=True)
 ticker = st.sidebar.text_input("Instrument Ticker", value="GC=F")
 backtest_days = st.sidebar.slider("Historical Data (Days)", min_value=60, max_value=365, value=180)
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙️ Parameters")
+st.sidebar.markdown("<span style='font-family: Space Mono; color: #FCEE0A;'>⚙️ PARAMETERS</span>", unsafe_allow_html=True)
 short_window = st.sidebar.number_input("Fast MA", min_value=5, max_value=30, value=20)
 long_window = st.sidebar.number_input("Slow MA", min_value=31, max_value=100, value=50)
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("🛡️ Risk")
+st.sidebar.markdown("<span style='font-family: Space Mono; color: #FF003C;'>🛡️ SECURITY / RISK</span>", unsafe_allow_html=True)
 account_capital = st.sidebar.number_input("Capital ($)", min_value=1000, max_value=1000000, value=10000, step=1000)
 risk_percentage = st.sidebar.slider("Risk (%)", min_value=0.5, max_value=5.0, value=1.0, step=0.5)
 
 # -------------------------------------------------------------------
 # MAIN HEADER
 # -------------------------------------------------------------------
-st.markdown(f'<h1 class="terminal-header">{ticker} QUANTITATIVE ENGINE</h1>', unsafe_allow_html=True)
-st.markdown('<div class="terminal-sub"> ✦ OPERATIONAL | PREDICTIVE ANALYTICS </div>', unsafe_allow_html=True)
+st.markdown(f'<h1 class="terminal-header">{ticker} QUANT_ENGINE</h1>', unsafe_allow_html=True)
+st.markdown('<div class="terminal-sub"> [SYS.ONLINE] ✦ PREDICTIVE NEURAL NETWORK ACTIVATED </div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
 # DATA INGESTION
@@ -164,7 +194,7 @@ try:
     
     if df_raw.empty:
         # Error check
-        st.error("Execution Terminated!")
+        st.error("Execution Terminated: No Data Found!")
     else:
         df = df_raw.copy()
         
@@ -218,31 +248,31 @@ try:
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        tab1, tab2, tab3 = st.tabs([" Chart", " Size", " Matrix"])
+        tab1, tab2, tab3 = st.tabs(["[CHART_DATA]", "[RISK_SIZE]", "[RAW_MATRIX]"])
         
         with tab1:
             # Execution chart
-            st.markdown("<h3 style='font-family: Bebas Neue; color: white;'>Execution History</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='font-family: Bebas Neue; color: white;'>EXECUTION HISTORY</h3>", unsafe_allow_html=True)
             
             fig = go.Figure()
-            # Plot price
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Close'], name='Spot', line=dict(color='#D4AF37', width=2)))
+            # Plot price (Neon Red)
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Close'], name='Spot', line=dict(color='#FF003C', width=2.5)))
             # Plot MA
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Fast'], name='Fast MA', line=dict(color='#00D2FF', dash='dot')))
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Slow'], name='Slow MA', line=dict(color='#FF3B30', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Fast'], name='Fast MA', line=dict(color='#FCEE0A', dash='dot')))
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['MA_Slow'], name='Slow MA', line=dict(color='#00F0FF', dash='dot')))
             # Plot signal
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Buy_Markers'], mode='markers', name='LONG', marker=dict(symbol='triangle-up', size=14, color='#34C759', line=dict(width=1, color='white'))))
-            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Sell_Markers'], mode='markers', name='SHORT', marker=dict(symbol='triangle-down', size=14, color='#FF3B30', line=dict(width=1, color='white'))))
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Buy_Markers'], mode='markers', name='LONG', marker=dict(symbol='triangle-up', size=14, color='#00FF66', line=dict(width=1, color='white'))))
+            fig.add_trace(go.Scatter(x=df_filtered.index, y=df_filtered['Sell_Markers'], mode='markers', name='SHORT', marker=dict(symbol='triangle-down', size=14, color='#FF003C', line=dict(width=1, color='white'))))
             
             # Style chart
             fig.update_layout(
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font_color='#8b949e',
+                font_color='#e0e0e0',
                 margin=dict(l=0, r=0, t=10, b=0),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
-                yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
+                xaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)'),
+                yaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)')
             )
             st.plotly_chart(fig, use_container_width=True)
 
@@ -267,7 +297,7 @@ except Exception as e:
 # MACRO RADAR
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Macro Radar</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; text-shadow: 0 0 10px rgba(255,0,60,0.5);'> GLOBAL MACRO RADAR</h2>", unsafe_allow_html=True)
 
 with st.spinner("Sinkronisasi data..."):
     try:
@@ -292,8 +322,8 @@ with st.spinner("Sinkronisasi data..."):
         col_macro1, col_macro2 = st.columns([1, 2], gap="large")
         
         with col_macro1:
-            st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>MATRIKS KORELASI</span>", unsafe_allow_html=True)
-            # Correlation heatmap
+            st.markdown("<span style='font-family: Space Mono; color: #00F0FF;'>[MATRIKS KORELASI]</span>", unsafe_allow_html=True)
+            # Correlation heatmap - Using a red-cyan theme
             fig_corr = go.Figure(data=go.Heatmap(
                 z=corr_matrix.values, x=corr_matrix.columns, y=corr_matrix.columns,
                 colorscale='RdBu', zmin=-1, zmax=1, text=np.round(corr_matrix.values, 2),
@@ -303,17 +333,18 @@ with st.spinner("Sinkronisasi data..."):
             st.plotly_chart(fig_corr, use_container_width=True)
             
         with col_macro2:
-            st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>KINERJA (BASE 100)</span>", unsafe_allow_html=True)
+            st.markdown("<span style='font-family: Space Mono; color: #FCEE0A;'>[KINERJA BASE 100]</span>", unsafe_allow_html=True)
             normalized_data = (macro_data / macro_data.iloc[0]) * 100
             fig_line = go.Figure()
             
-            # Line plot
-            for col in normalized_data.columns:
-                width = 3 if col == "Primary" else 1.5
+            # Line plot - applying cyberpunk colors
+            colors = ["#FF003C", "#00F0FF", "#FCEE0A", "#00FF66"]
+            for i, col in enumerate(normalized_data.columns):
+                width = 3.5 if col == "Primary" else 1.5
                 dash = 'solid' if col == "Primary" else 'dot'
-                fig_line.add_trace(go.Scatter(x=normalized_data.index, y=normalized_data[col], mode='lines', name=col, line=dict(width=width, dash=dash)))
+                fig_line.add_trace(go.Scatter(x=normalized_data.index, y=normalized_data[col], mode='lines', name=col, line=dict(width=width, dash=dash, color=colors[i%len(colors)])))
                 
-            fig_line.update_layout(height=350, margin=dict(l=0, r=0, t=20, b=0), plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='white', xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'), yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'))
+            fig_line.update_layout(height=350, margin=dict(l=0, r=0, t=20, b=0), plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='white', xaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)'), yaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)'))
             st.plotly_chart(fig_line, use_container_width=True)
             
     except Exception as e:
@@ -323,14 +354,14 @@ with st.spinner("Sinkronisasi data..."):
 # ML ENGINES
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Predictive Architectures</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> PREDICTIVE ARCHITECTURES</h2>", unsafe_allow_html=True)
 
 col_ai1, col_ai2 = st.columns(2, gap="large")
 
 with col_ai1:
     # Lasso container
     with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #00d2ff;'> Lasso Regression</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-family: Space Mono; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'>:: Lasso Regression</h3>", unsafe_allow_html=True)
         with st.spinner("Konfigurasi ML..."):
             try:
                 hist = yf.Ticker(ticker).history(period="2y")
@@ -368,7 +399,7 @@ with col_ai1:
 with col_ai2:
     # PyTorch container
     with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #b026ff;'> PyTorch LSTM</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='font-family: Space Mono; color: #FCEE0A; text-shadow: 0 0 10px rgba(252,238,10,0.5);'>:: PyTorch LSTM</h3>", unsafe_allow_html=True)
         if st.button("INITIALIZE TENSOR", use_container_width=True):
             with st.spinner("Iterasi pelatihan..."):
                 try:
@@ -421,7 +452,7 @@ with col_ai2:
 # VECTORBT BACKTEST
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> 5-Year Backtest</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; text-shadow: 0 0 10px rgba(255,0,60,0.5);'> HISTORICAL SIMULATION (5Y)</h2>", unsafe_allow_html=True)
 
 with st.spinner("Komputasi historis..."):
     try:
@@ -463,8 +494,7 @@ with st.spinner("Komputasi historis..."):
 # MONTE CARLO
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> Monte Carlo</h2>", unsafe_allow_html=True)
-st.markdown("<span style='font-family: Space Mono; color: #8b949e;'>Simulasi stokastik.</span>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> STOCHASTIC MONTE CARLO</h2>", unsafe_allow_html=True)
 
 with st.spinner("Menjalankan simulasi..."):
     try:
@@ -485,7 +515,7 @@ with st.spinner("Menjalankan simulasi..."):
             for col in sim_df.columns[:100]:
                 fig_mc.add_trace(go.Scatter(
                     y=sim_df[col], mode='lines', 
-                    line=dict(width=1, color='rgba(212, 175, 55, 0.08)'), 
+                    line=dict(width=1, color='rgba(255, 0, 60, 0.15)'), # Jalur Monte Carlo Cyberpunk Red transparan
                     showlegend=False
                 ))
                 
@@ -495,10 +525,10 @@ with st.spinner("Menjalankan simulasi..."):
                 yaxis_title="Projected Price",
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
-                font_color='#8b949e',
+                font_color='#e0e0e0',
                 margin=dict(l=0, r=0, t=20, b=0),
-                xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)'),
-                yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
+                xaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)'),
+                yaxis=dict(showgrid=True, gridcolor='rgba(255,0,60,0.1)')
             )
             st.plotly_chart(fig_mc, use_container_width=True)
         else:
@@ -511,18 +541,18 @@ with st.spinner("Menjalankan simulasi..."):
 # AI AGENT
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> ✧ AI Agent</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'> ✧ NEURAL_AGENT INTERFACE</h2>", unsafe_allow_html=True)
 
 # API Key
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙️ Agent")
+st.sidebar.markdown("<span style='font-family: Space Mono; color: #00F0FF;'>🤖 AGENT UPLINK</span>", unsafe_allow_html=True)
 groq_api_key = st.sidebar.text_input("Groq Key:", type="password")
 
 # Init Memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "Kamu AI Quant. Gunakan tools untuk mengambil data riil dari dashboard. Jawablah layaknya analis finansial profesional."},
-        {"role": "assistant", "content": "Halo. Saya AI Quant Agent. Ada yang bisa dianalisis hari ini?"}
+        {"role": "system", "content": "Kamu AI Quant. Gunakan tools untuk mengambil data riil dari dashboard. Jawablah layaknya analis finansial profesional dengan gaya teknikal."},
+        {"role": "assistant", "content": "SYSTEM ONLINE. Quant Agent siap menerima instruksi analisis pasar."}
     ]
 
 # Render Chat
@@ -537,7 +567,7 @@ for msg in st.session_state.messages:
             st.markdown(content)
 
 # User Input
-if prompt := st.chat_input("Ketik instruksi..."):
+if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
     
     # Show User
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -546,7 +576,7 @@ if prompt := st.chat_input("Ketik instruksi..."):
 
     # Check Key
     if not groq_api_key:
-        st.error("Masukkan API.")
+        st.error("UPLINK FAILED: Masukkan API Key Groq.")
     else:
         # Call Groq
         from groq import Groq
