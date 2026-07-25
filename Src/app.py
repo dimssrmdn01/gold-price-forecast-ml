@@ -551,8 +551,14 @@ groq_api_key = st.sidebar.text_input("Groq Key:", type="password")
 # Init Memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "system", "content": "Kamu AI Quant. Gunakan tools untuk mengambil data riil dari dashboard. Jawablah layaknya analis finansial profesional dengan gaya teknikal."},
-        {"role": "assistant", "content": "SYSTEM ONLINE. Quant Agent siap menerima instruksi analisis pasar."}
+        {
+            "role": "system", 
+            "content": "Kamu adalah AI Quant Agent. Jawablah layaknya analis finansial profesional. ATURAN SUPER PENTING: Jika kamu butuh memanggil tools/fungsi (seperti get_predictions atau get_backtest), panggil tools tersebut secara langsung TANPA menambahkan teks penjelasan apapun. Jangan pernah merender tag HTML/XML seperti <function> secara manual."
+        },
+        {
+            "role": "assistant", 
+            "content": "SYSTEM ONLINE. Quant Agent siap menerima instruksi analisis pasar."
+        }
     ]
 
 # Render Chat
