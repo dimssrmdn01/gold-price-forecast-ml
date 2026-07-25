@@ -615,7 +615,11 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                 # Request AI
                 response = client.chat.completions.create(
                     messages=st.session_state.messages,
+
                     model="llama-3.3-70b-versatile", 
+
+                    model="llama-3.3-70b-versatile",
+
                     tools=tools,
                     tool_choice="auto"
                 )
