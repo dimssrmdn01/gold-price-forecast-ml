@@ -66,7 +66,7 @@ Here is a detailed look at the Institutional Quant Engine terminal interfaces:
 
 ---
 
-## Core Engine Architectures
+##  Core Engine Architectures
 
 This terminal operates on four distinct analytical layers, ensuring a comprehensive approach to market analysis:
 
@@ -89,7 +89,7 @@ This terminal operates on four distinct analytical layers, ensuring a comprehens
 
 ---
 
-## Project Structure
+##  Project Structure
 ```
 gold-price-forecast-ml/
 ├── Src/
