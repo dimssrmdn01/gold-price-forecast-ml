@@ -329,10 +329,15 @@ with st.spinner("Sinkronisasi data..."):
 st.divider()
 st.markdown("<h2 style='font-family: Bebas Neue; color: white;'> PREDICTIVE ARCHITECTURES</h2>", unsafe_allow_html=True)
 
+#FUNGSI CACHING UNTUK ML
 @st.cache_data(ttl=3600)
 def train_lasso_model(ticker_symbol):
+    # Setup direktori untuk Model Persistence
+    os.makedirs('models', exist_ok=True)
+    model_path = f'models/lasso_{ticker_symbol}.pkl'
+
     hist = yf.Ticker(ticker_symbol).history(period="2y")
-    if hist.empty: return None, None, None
+    if hist.empty: return None, None, None, None, None
     
     df_ml = pd.DataFrame()
     df_ml['Close'] = hist['Close']
@@ -348,19 +353,50 @@ def train_lasso_model(ticker_symbol):
     X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
     y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
     
-    model_ml = Lasso(alpha=0.1)
-    model_ml.fit(X_train, y_train)
-    
+    #MODEL PERSISTENCE (JOBLIB) 
+    if os.path.exists(model_path):
+        model_ml = joblib.load(model_path)
+    else:
+        model_ml = Lasso(alpha=0.1)
+        model_ml.fit(X_train, y_train)
+        joblib.dump(model_ml, model_path)
+        
     predictions = model_ml.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
     next_day_pred = model_ml.predict(X.iloc[-1].values.reshape(1, -1))[0]
+    
+    ci_upper = next_day_pred + (1.96 * rmse)
+    ci_lower = next_day_pred - (1.96 * rmse)
     
     feature_importance = pd.DataFrame({
         'Feature': X.columns,
         'Coefficient': model_ml.coef_
     })
     
-    return next_day_pred, rmse, feature_importance
+    return next_day_pred, rmse, feature_importance, ci_upper, ci_lower
+
+col_ai1, col_ai2 = st.columns(2, gap="large")
+
+with col_ai1:
+    with st.container(border=True):
+        st.markdown("<h3 style='font-family: Space Mono; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'>:: Lasso Regression</h3>", unsafe_allow_html=True)
+        with st.spinner("Load model statistik..."):
+            try:
+                # Tangkap nilai CI Atas dan Bawah
+                lasso_pred, lasso_rmse, lasso_fi, ci_up, ci_low = train_lasso_model(ticker)
+                
+                if lasso_pred:
+                    st.session_state['next_day_pred'] = lasso_pred
+                    st.session_state['lasso_rmse'] = lasso_rmse
+                    st.session_state['lasso_importance'] = lasso_fi
+                    
+                    l1, l2 = st.columns(2)
+                    l1.metric("Prediksi Harga", f"${lasso_pred:,.2f}")
+                    l2.metric("Error (RMSE)", f"${lasso_rmse:,.2f}")
+                    
+                    st.markdown(f"<div style='text-align: center; color: #00FF66; font-family: Space Mono; font-size: 0.85rem; margin-top: 10px;'>🎯 95% Confidence Interval:<br><b>${ci_low:,.2f}  —  ${ci_up:,.2f}</b></div>", unsafe_allow_html=True)
+            except Exception as e:
+                st.error(f"ML Error: {e}")
 
 @st.cache_data(ttl=3600)
 def train_lstm_model(ticker_symbol):
