@@ -654,8 +654,26 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                 
                 response_msg = response.choices[0].message
                 
+                # Cek Tools
                 if response_msg.tool_calls:
-                    st.session_state.messages.append(response_msg.model_dump())
+                    
+                    safe_tool_calls = []
+                    for tc in response_msg.tool_calls:
+                        safe_tool_calls.append({
+                            "id": tc.id,
+                            "type": tc.type,
+                            "function": {
+                                "name": tc.function.name,
+                                "arguments": tc.function.arguments
+                            }
+                        })
+                    
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": response_msg.content, 
+                        "tool_calls": safe_tool_calls
+                    })
+                
                     
                     for tool_call in response_msg.tool_calls:
                         func_name = tool_call.function.name
