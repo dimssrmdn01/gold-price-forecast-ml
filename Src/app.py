@@ -487,7 +487,7 @@ with col_ai2:
 # MODEL EVALUATION & EXPLAINABILITY DASHBOARD
 # -------------------------------------------------------------------
 st.markdown("<br>", unsafe_allow_html=True)
-with st.expander("📊 AI/ML MODEL METRICS & EXPLAINABILITY", expanded=True):
+with st.expander(":: AI/ML MODEL METRICS & EXPLAINABILITY", expanded=True):
     c_eval1, c_eval2 = st.columns([1, 1], gap="large")
     
     with c_eval1:
@@ -522,10 +522,10 @@ with st.expander("📊 AI/ML MODEL METRICS & EXPLAINABILITY", expanded=True):
             st.info("Jalankan komputasi PyTorch LSTM untuk mengaktifkan komparasi metrik.")
 
 # -------------------------------------------------------------------
-# VECTORBT BACKTEST
+# VECTORBT BACKTEST (WALK-FORWARD VALIDATION)
 # -------------------------------------------------------------------
 st.divider()
-st.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; text-shadow: 0 0 10px rgba(255,0,60,0.5);'> HISTORICAL SIMULATION (5Y)</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; text-shadow: 0 0 10px rgba(255,0,60,0.5);'> HISTORICAL SIMULATION & WALK-FORWARD</h2>", unsafe_allow_html=True)
 
 @st.cache_resource(ttl=3600)
 def run_cached_backtest(ticker_sym, sw, lw, capital):
@@ -547,28 +547,65 @@ def run_cached_backtest(ticker_sym, sw, lw, capital):
     win = port.trades.win_rate() * 100
     dd = port.max_drawdown() * 100
     fig = port.plot()
-    
-    return ret, prof, win, dd, fig
 
-with st.spinner("Komputasi historis..."):
+    years = price_series.index.year.unique()
+    wf_results = []
+    for y in years:
+        mask = price_series.index.year == y
+        if mask.sum() > 50: 
+            p_chunk = price_series[mask]
+            e_chunk = entries[mask]
+            ex_chunk = exits[mask]
+            
+            chunk_port = vbt.Portfolio.from_signals(p_chunk, e_chunk, ex_chunk, init_cash=capital, fees=0.001)
+            
+            # Mencegah error pembagian nol jika tidak ada trade di tahun tersebut
+            chunk_win_rate = chunk_port.trades.win_rate() * 100 if chunk_port.trades.count() > 0 else 0.0
+            
+            wf_results.append({
+                'Periode (Tahun)': str(y),
+                'Total Trade': chunk_port.trades.count(),
+                'Win Rate (%)': chunk_win_rate,
+                'Return (%)': chunk_port.total_return() * 100,
+                'Max Drawdown (%)': chunk_port.max_drawdown() * 100
+            })
+            
+    wf_df = pd.DataFrame(wf_results).set_index('Periode (Tahun)')
+    
+    return ret, prof, win, dd, fig, wf_df
+
+with st.spinner("Komputasi Walk-Forward Historis..."):
     try:
-        vbt_ret, vbt_prof, vbt_win, vbt_dd, fig_bt = run_cached_backtest(ticker, short_window, long_window, account_capital)
+        vbt_ret, vbt_prof, vbt_win, vbt_dd, fig_bt, wf_df = run_cached_backtest(ticker, short_window, long_window, account_capital)
         
+        # Amankan data ke State untuk AI Agent
         st.session_state['vbt_return'] = vbt_ret
         st.session_state['vbt_profit'] = vbt_prof
         st.session_state['vbt_drawdown'] = vbt_dd
         
+        # Layout Matrix
         col_bt1, col_bt2, col_bt3, col_bt4 = st.columns(4)
-        col_bt1.metric("Return", f"{vbt_ret:.2f}%")
-        col_bt2.metric("Profit", f"${vbt_prof:,.2f}")
-        col_bt3.metric("Win Rate", f"{vbt_win:.2f}%")
-        col_bt4.metric("Drawdown", f"{vbt_dd:.2f}%")
+        col_bt1.metric("Overall Return", f"{vbt_ret:.2f}%")
+        col_bt2.metric("Overall Profit", f"${vbt_prof:,.2f}")
+        col_bt3.metric("Overall Win Rate", f"{vbt_win:.2f}%")
+        col_bt4.metric("Overall Drawdown", f"{vbt_dd:.2f}%")
         
-        fig_bt.update_layout(height=500, template="plotly_dark", margin=dict(l=0, r=0, t=20, b=0), plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-        st.plotly_chart(fig_bt, use_container_width=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        tb1, tb2 = st.tabs(["[EQUITY_CURVE]", "[WALK_FORWARD_MATRIX]"])
+        
+        with tb1:
+            fig_bt.update_layout(height=500, template="plotly_dark", margin=dict(l=0, r=0, t=20, b=0), plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+            st.plotly_chart(fig_bt, use_container_width=True)
+            
+        with tb2:
+            st.markdown("<span style='font-family: Space Mono; color: #00FF66;'>[ ROBUSTNESS CHECK PER TAHUN ]</span>", unsafe_allow_html=True)
+            st.info("Walk-Forward Analysis memecah data 5 tahun menjadi jendela 1 tahunan untuk menguji apakah strategi tetap profit di berbagai kondisi pasar (Bull, Bear, Sideways).")
+            # Style tabel biar nyatu sama tema Cyberpunk
+            st.dataframe(wf_df.style.highlight_max(subset=['Return (%)', 'Win Rate (%)'], color='rgba(0, 255, 102, 0.3)').highlight_min(subset=['Return (%)'], color='rgba(255, 0, 60, 0.3)'), use_container_width=True)
         
     except ImportError:
-        st.warning("Install vectorbt!")
+        st.warning("Install vectorbt! (pip install vectorbt)")
     except Exception as e:
         st.error(f"Backtest Error: {e}")
 
