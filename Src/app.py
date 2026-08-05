@@ -491,7 +491,7 @@ with st.expander("📊 AI/ML MODEL METRICS & EXPLAINABILITY", expanded=True):
 st.divider()
 st.markdown("<h2 style='font-family: Bebas Neue; color: #FF003C; text-shadow: 0 0 10px rgba(255,0,60,0.5);'> HISTORICAL SIMULATION (5Y)</h2>", unsafe_allow_html=True)
 
-@st.cache_data(ttl=3600)
+@st.cache_resource(ttl=3600)
 def run_cached_backtest(ticker_sym, sw, lw, capital):
     import vectorbt as vbt
     bt_data = yf.download(ticker_sym, period="5y", progress=False)
