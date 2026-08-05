@@ -590,11 +590,12 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("<span style='font-family: Space Mono; color: #00F0FF;'>🤖 AGENT UPLINK</span>", unsafe_allow_html=True)
 groq_api_key = st.sidebar.text_input("Groq Key:", type="password")
 
+# Init Memory
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "system", 
-            "content": "Kamu adalah AI Quant Agent. Jawablah layaknya analis finansial profesional. ATURAN SUPER PENTING: Jika kamu butuh memanggil tools/fungsi (seperti get_predictions atau get_backtest), panggil tools tersebut secara langsung TANPA menambahkan teks penjelasan apapun. Jangan pernah merender tag HTML/XML seperti <function> secara manual."
+            "content": "Kamu adalah AI Quant Agent ahli instrumen XAU/USD. Jawablah layaknya analis finansial kuantitatif profesional. Gunakan tools yang tersedia secara sistem (function calling) untuk mengambil data prediksi model ML atau metrik backtest sebelum menjawab pertanyaan user. JANGAN PERNAH mengetik nama fungsi atau format JSON secara manual di dalam teks balasan chat."
         },
         {
             "role": "assistant", 
