@@ -465,7 +465,7 @@ with col_ai2:
                     d2.metric("RMSE (Test Data)", f"${lstm_rmse:,.2f}")
                 except Exception as e:
                     st.error(f"PyTorch Error: {e}")
-                    
+
 # -------------------------------------------------------------------
 # MODEL EVALUATION & EXPLAINABILITY DASHBOARD
 # -------------------------------------------------------------------
@@ -642,6 +642,21 @@ with st.spinner("Menjalankan simulasi..."):
 st.divider()
 st.markdown("<h2 style='font-family: Bebas Neue; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'> ✧ NEURAL_AGENT INTERFACE</h2>", unsafe_allow_html=True)
 
+#FUNGSI TOOLS BERITA 
+def fetch_news(ticker_sym):
+    try:
+        # yfinance narik headline berita terbaru dari Yahoo Finance
+        news_data = yf.Ticker(ticker_sym).news
+        if not news_data:
+            return "Berita pasar tidak ditemukan."
+        # Ambil 3 berita teratas biar AI nggak overthinking
+        headlines = [f"• {n['title']} ({n['publisher']})" for n in news_data[:3]]
+        return "\n".join(headlines)
+    except Exception as e:
+        return f"Gagal mengambil berita: {e}"
+
+
+# API Key
 st.sidebar.markdown("---")
 st.sidebar.markdown("<span style='font-family: Space Mono; color: #00F0FF;'>🤖 AGENT UPLINK</span>", unsafe_allow_html=True)
 groq_api_key = st.sidebar.text_input("Groq Key:", type="password")
@@ -651,14 +666,15 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "system", 
-            "content": "Kamu adalah AI Quant Agent ahli instrumen XAU/USD. Jawablah layaknya analis finansial kuantitatif profesional. Gunakan tools yang tersedia secara sistem (function calling) untuk mengambil data prediksi model ML atau metrik backtest sebelum menjawab pertanyaan user. JANGAN PERNAH mengetik nama fungsi atau format JSON secara manual di dalam teks balasan chat."
+            "content": "Kamu adalah AI Quant Agent ahli instrumen finansial. Jawablah layaknya analis finansial kuantitatif profesional. Gunakan tools yang tersedia secara sistem (function calling) untuk mengambil data prediksi model ML, metrik backtest, atau berita fundamental terbaru sebelum menjawab pertanyaan user. JANGAN PERNAH mengetik nama fungsi atau format JSON secara manual di dalam teks balasan chat."
         },
         {
             "role": "assistant", 
-            "content": "SYSTEM ONLINE. Quant Agent siap menerima instruksi analisis pasar."
+            "content": "SYSTEM ONLINE. Quant Agent siap menerima instruksi analisis teknikal dan fundamental pasar."
         }
     ]
 
+# Render Chat
 for msg in st.session_state.messages:
     role = msg.get("role") if isinstance(msg, dict) else msg.role
     content = msg.get("content") if isinstance(msg, dict) else msg.content
@@ -667,7 +683,8 @@ for msg in st.session_state.messages:
         with st.chat_message(role):
             st.markdown(content)
 
-if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
+# User Input
+if prompt := st.chat_input("Ketik instruksi atau parameter analisis (misal: 'Beri analisis fundamental berdasarkan berita emas terbaru!')..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -679,6 +696,7 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
         import json
         client = Groq(api_key=groq_api_key)
         
+        # Tools Def
         tools = [
             {
                 "type": "function",
@@ -695,6 +713,14 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                     "description": "Ambil metrik backtest (Return, Profit, Drawdown).",
                     "parameters": {"type": "object", "properties": {}}
                 }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_market_news",
+                    "description": "Ambil headline berita fundamental terbaru terkait instrumen/ticker yang sedang dianalisis.",
+                    "parameters": {"type": "object", "properties": {}}
+                }
             }
         ]
 
@@ -709,10 +735,11 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                 )
                 
                 response_msg = response.choices[0].message
+
                 
-                # Cek Tools
                 if response_msg.tool_calls:
                     
+                    # --- PERBAIKAN ERROR 400 GROQ ---
                     safe_tool_calls = []
                     for tc in response_msg.tool_calls:
                         safe_tool_calls.append({
@@ -729,7 +756,7 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                         "content": response_msg.content, 
                         "tool_calls": safe_tool_calls
                     })
-                
+
                     
                     for tool_call in response_msg.tool_calls:
                         func_name = tool_call.function.name
@@ -746,6 +773,9 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis..."):
                                 result = f"Return: {ret:.2f}%, Profit: ${prof:.2f}, Max Drawdown: {dd:.2f}%"
                             else:
                                 result = "Data backtest kosong."
+                        elif func_name == "get_market_news":
+                            # Panggil fungsi berita yang baru dibuat
+                            result = fetch_news(ticker)
                         else:
                             result = "Fungsi invalid."
                             
