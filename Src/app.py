@@ -453,18 +453,31 @@ with col_ai1:
 with col_ai2:
     with st.container(border=True):
         st.markdown("<h3 style='font-family: Space Mono; color: #FCEE0A; text-shadow: 0 0 10px rgba(252,238,10,0.5);'>:: PyTorch LSTM</h3>", unsafe_allow_html=True)
+        
         if st.button("INITIALIZE TENSOR", use_container_width=True):
             with st.spinner("Komputasi Deep Learning..."):
                 try:
                     lstm_pred, lstm_actual, lstm_rmse = train_lstm_model(ticker)
+                    # Simpan semua ke memori awet
                     st.session_state['lstm_pred'] = lstm_pred
+                    st.session_state['lstm_actual'] = lstm_actual
                     st.session_state['lstm_rmse'] = lstm_rmse
-                    
-                    d1, d2 = st.columns(2)
-                    d1.metric("Proyeksi", f"${lstm_pred:,.2f}", f"{lstm_pred - lstm_actual:+.2f}")
-                    d2.metric("RMSE (Test Data)", f"${lstm_rmse:,.2f}")
+                    st.session_state['lstm_initialized'] = True
                 except Exception as e:
                     st.error(f"PyTorch Error: {e}")
+        
+        # Render UI selalu tampil kalau sudah pernah diinisialisasi
+        if st.session_state.get('lstm_initialized', False):
+            d1, d2 = st.columns(2)
+            d1.metric(
+                "Proyeksi", 
+                f"${st.session_state['lstm_pred']:,.2f}", 
+                f"{st.session_state['lstm_pred'] - st.session_state['lstm_actual']:+.2f}"
+            )
+            d2.metric(
+                "RMSE (Test Data)", 
+                f"${st.session_state['lstm_rmse']:,.2f}"
+            )
 
 # -------------------------------------------------------------------
 # MODEL EVALUATION & EXPLAINABILITY DASHBOARD
