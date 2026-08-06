@@ -375,28 +375,7 @@ def train_lasso_model(ticker_symbol):
     
     return next_day_pred, rmse, feature_importance, ci_upper, ci_lower
 
-col_ai1, col_ai2 = st.columns(2, gap="large")
 
-with col_ai1:
-    with st.container(border=True):
-        st.markdown("<h3 style='font-family: Space Mono; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'>:: Lasso Regression</h3>", unsafe_allow_html=True)
-        with st.spinner("Load model statistik..."):
-            try:
-                # Tangkap nilai CI Atas dan Bawah
-                lasso_pred, lasso_rmse, lasso_fi, ci_up, ci_low = train_lasso_model(ticker)
-                
-                if lasso_pred:
-                    st.session_state['next_day_pred'] = lasso_pred
-                    st.session_state['lasso_rmse'] = lasso_rmse
-                    st.session_state['lasso_importance'] = lasso_fi
-                    
-                    l1, l2 = st.columns(2)
-                    l1.metric("Prediksi Harga", f"${lasso_pred:,.2f}")
-                    l2.metric("Error (RMSE)", f"${lasso_rmse:,.2f}")
-                    
-                    st.markdown(f"<div style='text-align: center; color: #00FF66; font-family: Space Mono; font-size: 0.85rem; margin-top: 10px;'>🎯 95% Confidence Interval:<br><b>${ci_low:,.2f}  —  ${ci_up:,.2f}</b></div>", unsafe_allow_html=True)
-            except Exception as e:
-                st.error(f"ML Error: {e}")
 
 @st.cache_data(ttl=3600)
 def train_lstm_model(ticker_symbol):
@@ -455,15 +434,19 @@ with col_ai1:
         st.markdown("<h3 style='font-family: Space Mono; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'>:: Lasso Regression</h3>", unsafe_allow_html=True)
         with st.spinner("Load model statistik..."):
             try:
-                lasso_pred, lasso_rmse, lasso_fi = train_lasso_model(ticker)
+                # Menangkap 5 value dari fungsi yang baru
+                lasso_pred, lasso_rmse, lasso_fi, ci_up, ci_low = train_lasso_model(ticker)
+                
                 if lasso_pred:
                     st.session_state['next_day_pred'] = lasso_pred
                     st.session_state['lasso_rmse'] = lasso_rmse
                     st.session_state['lasso_importance'] = lasso_fi
                     
                     l1, l2 = st.columns(2)
-                    l1.metric("Prediksi", f"${lasso_pred:,.2f}")
-                    l2.metric("RMSE (Test Data)", f"${lasso_rmse:,.2f}")
+                    l1.metric("Prediksi Harga", f"${lasso_pred:,.2f}")
+                    l2.metric("Error (RMSE)", f"${lasso_rmse:,.2f}")
+                    
+                    st.markdown(f"<div style='text-align: center; color: #00FF66; font-family: Space Mono; font-size: 0.85rem; margin-top: 10px;'>🎯 95% Confidence Interval:<br><b>${ci_low:,.2f}  —  ${ci_up:,.2f}</b></div>", unsafe_allow_html=True)
             except Exception as e:
                 st.error(f"ML Error: {e}")
 
@@ -482,7 +465,7 @@ with col_ai2:
                     d2.metric("RMSE (Test Data)", f"${lstm_rmse:,.2f}")
                 except Exception as e:
                     st.error(f"PyTorch Error: {e}")
-
+                    
 # -------------------------------------------------------------------
 # MODEL EVALUATION & EXPLAINABILITY DASHBOARD
 # -------------------------------------------------------------------
