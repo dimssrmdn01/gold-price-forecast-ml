@@ -11,3 +11,4 @@ plotly
 torch
 groq
 vectorbt
+duckduckgo-search

@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
+from duckduckgo_search import DDGS
 import plotly.graph_objects as go
 import torch
 import torch.nn as nn
@@ -655,15 +656,24 @@ with st.spinner("Menjalankan simulasi..."):
 st.divider()
 st.markdown("<h2 style='font-family: Bebas Neue; color: #00F0FF; text-shadow: 0 0 10px rgba(0,240,255,0.5);'> ✧ NEURAL_AGENT INTERFACE</h2>", unsafe_allow_html=True)
 
-#FUNGSI TOOLS BERITA 
+
 def fetch_news(ticker_sym):
     try:
-        # yfinance narik headline berita terbaru dari Yahoo Finance
-        news_data = yf.Ticker(ticker_sym).news
-        if not news_data:
-            return "Berita pasar tidak ditemukan."
-        # Ambil 3 berita teratas biar AI nggak overthinking
-        headlines = [f"• {n['title']} ({n['publisher']})" for n in news_data[:3]]
+        # Modifikasi keyword pencarian biar hasilnya tajam ke berita finansial
+        query = f"{ticker_sym} market financial news"
+        
+        # Narik 3 berita terbaru dari web
+        results = DDGS().news(keywords=query, max_results=3)
+        
+        if not results:
+            return f"Berita pasar untuk {ticker_sym} tidak ditemukan."
+            
+        headlines = []
+        for n in results:
+            title = n.get('title', 'Tanpa Judul')
+            source = n.get('source', 'Sumber Tidak Diketahui')
+            headlines.append(f"• {title} ({source})")
+            
         return "\n".join(headlines)
     except Exception as e:
         return f"Gagal mengambil berita: {e}"
