@@ -16,7 +16,7 @@
 >
 > An institutional-grade quantitative dashboard for analyzing and forecasting financial asset volatility (default: XAU/USD, extensible to any Yahoo Finance ticker). This system merges strict machine learning validation, walk-forward algorithmic backtesting, and an autonomous LLM agent capable of real-time tool calling for fundamental and technical market analysis.
 
-## Key Architectural Upgrades
+##  Key Architectural Upgrades
 
 - **Agentic LLM Integration.** Groq API (LLaMA-3.3-70B) with strict function-calling: the agent can pull live ML projections, backtest metrics, and real-time market news (via DuckDuckGo Search) on its own, with an explicit guardrail against fabricating numbers when a tool hasn't been run yet.
 - **Walk-Forward Validation.** The `vectorbt` backtest engine chunks 5 years of historical data into rolling 1-year windows, reporting win rate, return, and max drawdown per period so strategy robustness is checked across bull, bear, and sideways regimes, not just one lucky window.
