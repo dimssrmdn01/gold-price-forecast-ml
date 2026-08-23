@@ -752,7 +752,7 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis (misal: 'Ber
             try:
                 response = client.chat.completions.create(
                     messages=st.session_state.messages,
-                    model="llama-3.3-70b-versatile",
+                    model="openai/gpt-oss-120b",
                     tools=tools,
                     tool_choice="auto"
                 )
@@ -762,7 +762,7 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis (misal: 'Ber
                 
                 if response_msg.tool_calls:
                     
-                    # --- PERBAIKAN ERROR 400 GROQ ---
+                    #PERBAIKAN ERROR 
                     safe_tool_calls = []
                     for tc in response_msg.tool_calls:
                         safe_tool_calls.append({
@@ -811,7 +811,7 @@ if prompt := st.chat_input("Ketik instruksi atau parameter analisis (misal: 'Ber
                         
                     final_response = client.chat.completions.create(
                         messages=st.session_state.messages,
-                        model="llama-3.3-70b-versatile"
+                        model="openai/gpt-oss-120b"
                     )
                     final_reply = final_response.choices[0].message.content
                     msg_placeholder.markdown(final_reply)
